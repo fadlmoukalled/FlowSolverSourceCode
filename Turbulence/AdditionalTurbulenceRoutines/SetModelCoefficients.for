@@ -1,0 +1,737 @@
+c
+c#############################################################################################
+c
+      SUBROUTINE SetTurbulenceModelCoefficients
+c
+C#############################################################################################
+c
+      use User0, only: TurbulenceModel,WallTreatment,noft2,
+     *                 RotationCurvatureMethod,LWallDistanceFreeWA
+      use Turbulence1
+c********************************************************************************************
+      implicit none
+c********************************************************************************************
+c      
+      sigB=0.85    
+      sigC=0.7
+      cc=5.2
+      c1limiter=10.
+      a1sst=0.31
+c      
+c---  Standard high-Reynolds number k-e model      
+c
+      if(TurbulenceModel.eq.'kepsilon') then
+c
+        ModelNumber=1
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.44
+        ce2=1.92
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+      elseif(TurbulenceModel.eq.'kepsilonchien') then
+c
+        ModelNumber=2
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.35
+        ce2=1.8
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+      elseif(TurbulenceModel.eq.'kepsilonsharma') then
+c
+        ModelNumber=3
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.44
+        ce2=1.92
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+      elseif(TurbulenceModel.eq.'kepsilonchc') then
+c
+        ModelNumber=4
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.44
+        ce2=1.92
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c      
+      elseif(TurbulenceModel.eq.'kepsilonkasagi') then
+c
+        ModelNumber=5
+c
+        sigT=0.9
+        sigTKE=1.4
+        sigTED=1.3
+        ce1=1.4
+        ce2=1.8
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c      
+      elseif(TurbulenceModel.eq.'kepsilontagawa') then
+c
+        ModelNumber=6
+c
+        sigT=0.9
+        sigTKE=1.4
+        sigTED=1.3
+        ce1=1.45
+        ce2=1.9
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+      elseif(TurbulenceModel.eq.'kepsilonhishida') then
+c
+        ModelNumber=7
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.45
+        ce2=1.9
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c      
+      elseif(TurbulenceModel.eq.'kelambremhorst') then
+c
+        ModelNumber=8
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.44
+        ce2=1.92
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+c      
+      elseif(TurbulenceModel.eq.'kelambremhorstm') then
+c
+        ModelNumber=9
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.3
+        ce1=1.44
+        ce2=1.92
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+c      
+      elseif(TurbulenceModel.eq.'realizable') then
+c
+        ModelNumber=10
+c
+        sigT=0.9
+        sigTKE=1.0
+        sigTED=1.2
+        A0=4.04
+        ce1=1.44
+        ce2=1.9
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+c
+c---  Standard high-Reynolds number k-w model      
+c
+      elseif(TurbulenceModel.eq.'komega') then
+c
+        ModelNumber=11
+c
+        sigT=0.9
+        sigTKE=2. 
+        sigTED=2.
+        alpha=5./9.
+        betta=0.075
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+      elseif(TurbulenceModel.eq.'komegaepsilon') then
+c
+        ModelNumber=12
+c
+        sigT=0.9
+        sigTKE=1. 
+        sigTED=0.856
+        alpha=0.4404
+        betta=0.0828
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+      elseif(TurbulenceModel.eq.'komegabsl') then
+c
+        ModelNumber=13
+c
+        sigT=0.9
+c
+        betta=0.075
+        alpha=0.4404
+c
+        sigTKE1=0.5
+        sigTED1=0.5
+        betta1=0.075
+c
+        sigTKE2=1. 
+        sigTED2=0.856
+        betta2=0.0828
+c
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+      elseif(TurbulenceModel.eq.'komegasst') then
+c
+        ModelNumber=14
+c
+        sigT=0.9
+c
+        betta=0.075
+        alpha=0.4403
+c
+        a1sst=0.31
+        Crc=1.4
+c
+        sigTKE1=0.85
+        sigTED1=0.5
+        alpha1=5./9.
+        betta1=0.075
+c
+        sigTKE2=1. 
+        sigTED2=0.856
+        alpha2=0.44
+        betta2=0.0828
+c
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+        cr1=0.
+        cr2=0.
+        cr3=0.
+c
+        if(RotationCurvatureMethod.eq.'spalartshur') then
+c
+          cr1=1.
+          cr2=2.
+          cr3=1.
+c
+        endif
+c
+      elseif(TurbulenceModel.eq.'sstgamaretheta') then
+c
+        ModelNumber=15
+c
+        sigT=0.9
+c
+        betta=0.075
+        alpha=0.4403
+c
+        a1sst=0.31
+        Crc=1.4
+c
+        sigTKE1=0.85
+        sigTED1=0.5
+        alpha1=5./9.
+        betta1=0.075
+c
+        sigTKE2=1. 
+        sigTED2=0.856
+        alpha2=0.44
+        betta2=0.0828
+c
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+        ca1=2.d0
+        ca2=6.d-2
+        ce1=1.d0
+        ce2=50.d0
+        cot=3.d-2
+        s1=2.d0
+        sigTGamma=1.d0
+        sigTReTheta=2.d0
+c
+      elseif(TurbulenceModel.eq.'komega2006') then
+c
+        ModelNumber=16
+c
+        sigT=0.9
+c
+        betta=0.075
+        betta0=0.0708     !check for 3d
+        alpha=13./25.
+        cmu=0.09
+        sigTKE=5./3.
+        sigTED=2.
+        sigdo=1./8.
+        Clim=7./8.
+c
+        cappa=0.41
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+      elseif(TurbulenceModel.eq.'komega2006lrn') then
+c
+        ModelNumber=17
+c
+        sigT=0.9
+c
+        betta0=0.0708      !check for 3d
+        sigTKE=5./3. 
+        sigTED=2.
+        sigdo=1./8.
+        alphaStar0=betta0/3.
+        alpha0=1./9.
+        cmu=0.09
+        Clim=7./8.
+        ReB=8.
+        ReK=6.
+        ReW=2.61 
+c
+        cappa=0.41
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+      elseif(TurbulenceModel.eq.'kklmodel') then
+c
+        ModelNumber=18
+c
+        ctrans=11.225
+        sigT=0.9
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        c1limiter=20.
+c        
+        sigTKE=1.
+        sigKL=1.
+        xi1=1.2
+        xi2=0.97
+        xi3=0.13
+        c11=10.0
+        c12=1.3
+        cd1=4.7
+c
+      elseif(TurbulenceModel.eq.'spalartallmaras') then
+c
+        ModelNumber=19
+c
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        sigT=0.9
+        cb1=0.1355
+        cb2=0.622
+        cw2=0.3
+        cw3=2.
+        cv1=7.1
+        ct3=1.2
+        if(noft2) ct3=0.
+        ct4=0.5
+        cappa=0.41
+        sigMED=2./3.
+        cw1=cb1/(cappa**2)+(1.+cb2)/sigMED
+        c2=0.7
+        c3=0.9
+        c5=3.5
+        cn1=16.
+        crot=2.
+        Cr1SA=0.5   ! for roughness
+        cr1=0.
+        cr2=0.
+        cr3=0.
+c
+        if(RotationCurvatureMethod.eq.'spalartshur') then
+c
+          cr1=1.
+          cr2=12.
+          cr3=1.
+c
+        elseif(RotationCurvatureMethod.eq.'zhangyang') then
+c
+          cr1=1.
+          cr2=2.
+          cr3=1.
+c
+        endif
+c
+        ctrans=11.225
+c
+      elseif(TurbulenceModel.eq.'wrayagarwal') then
+c
+        ModelNumber=20
+c
+        sigT=0.9
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.225
+c
+        c1KW=0.0829
+        c1KE=0.1127
+        if(LWallDistanceFreeWA) c1KE=0.1284
+        sigKW=0.72
+        sigKE=1.
+        cw=8.54
+        cm=8.0
+        c2KW=c1KW/(cappa**2)+sigKW
+        c2KE=c1KE/(cappa**2)+sigKE
+        Cr1WA=0.5
+c
+        cr1=0.
+        cr2=0.
+        cr3=0.
+c
+        if(RotationCurvatureMethod.eq.'spalartshur') then
+c
+          cr1=1.
+          cr2=12.
+          cr3=1.
+c
+        elseif(RotationCurvatureMethod.eq.'zhangyang') then
+c
+          cr1=1.
+          cr2=2.
+          cr3=0.6
+c
+        endif
+c
+      elseif(TurbulenceModel.eq.'kklomega') then
+c
+        ModelNumber=21
+c
+        ctrans=11.225
+        cappa=0.41
+c
+        sigT=0.85
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        sigTKE=1.
+        sigTED=1.17
+c        
+        A0=4.04
+        As=2.12
+        Av=6.75
+        Abp=0.6
+        Anat=200.
+        Ats=200.
+        Cbpcrit=1.2
+        Cnc=0.1
+        Cnatcrit=1250.
+        Cint=0.75
+        Ctscrit=1000.
+        Crnat=0.02
+        C11=3.4d-6
+        C12=1.d-10
+        Cr=0.12
+        Ca0=0.035
+        Css=1.5
+        Ctl=4360.
+        Cw1=0.44
+        Cw2=0.92
+        Cw3=0.3
+        Cwr=1.5
+        Clambda=2.495
+c
+      elseif(TurbulenceModel.eq.'kepsilonrt') then
+c
+        ModelNumber=22
+c
+        ctrans=11.225
+        cappa=0.41
+c
+        sigT=0.9
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        sigTKE=1.
+        sigTED=1.3
+        sigRT=1.
+c        
+        phiRT=0.31  ! (2./3. is the standard) 
+                     ! phiRT=0.31 (transonic and higher as well as impinging flows)
+        ce1=1.44
+        ce2=1.92
+        ce3=0.3
+        AmuRT=0.007
+        alphaRT=0.00015
+        BettaRT=0.2
+        C2=(12./11.)*dsqrt(BettaRT/alphaRT)
+        C3=3./(2.*sigRT)
+        C1=C2+cappa*cappa*(C3-1./sigRT)
+c
+        cr1=0.
+        cr2=0.
+        cr3=0.
+c
+        if(RotationCurvatureMethod.eq.'spalartshur') then
+c
+          cr1=1.
+          cr2=12.
+          cr3=1.
+c
+        elseif(RotationCurvatureMethod.eq.'zhangyang') then
+c
+          cr1=1.
+          cr2=2.
+          cr3=0.6
+c
+        endif
+c
+      elseif(TurbulenceModel.eq.'sstgama') then
+c
+        ModelNumber=23
+c
+        sigT=0.9
+c
+        betta=0.075
+        alpha=0.4403
+c
+        a1sst=0.31
+        Crc=1.4
+c
+        sigTKE1=0.85
+        sigTED1=0.5
+        alpha1=5./9.
+        betta1=0.075
+c
+        sigTKE2=1. 
+        sigTED2=0.856
+        alpha2=0.44
+        betta2=0.0828
+c
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.06
+c
+        FlengthGama=100.d0
+        ce2=50.d0
+        ca2=6.d-2
+        sigTGamma=1.d0
+c
+        Ctu1=100.d0
+        Ctu2=1000.d0
+        Ctu3=1.d0
+c
+        Cpg1=14.68d0
+        Cpg2=-7.34d0
+        Cpg3=0.d0
+        Cpg1lim=1.5d0
+        Cpg2lim=3.d0
+c
+        Ck=1.d0
+        Csep=1.d0
+        Reoclim=1100.d0
+c
+      elseif(TurbulenceModel.eq.'nut92') then
+c
+        ModelNumber=24
+c
+        Anut1=-0.5d0
+        Anut2=4.d0
+        Cnut0=0.8d0
+        Cnut1=1.6d0
+        Cnut2=0.1d0
+        Cnut3=4.d0
+        Cnut4=0.35d0
+        Cnut5=3.5d0
+        Cnut6=2.9d0
+        Cnut7=31.5d0
+        Cnut8=0.1d0
+c
+        cappa=0.41
+        cmu=0.09
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        sigT=0.9
+        ctrans=11.225
+c
+      elseif(TurbulenceModel.eq.'kepsilonrng') then
+c
+        ModelNumber=25
+c
+        sigT=0.9
+c
+        sigTKE=1.393
+        sigTED=1.393
+c
+        ce1=1.42
+        ce2=1.68
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+c
+        cmu=0.0845
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+        alpha0RNG=1.
+        eta0RNG=4.38
+        betaRNG=0.012
+c
+      elseif(TurbulenceModel.eq.'kepsilonv2f') then
+c
+        ModelNumber=26
+c
+        sigT=0.9
+c
+        sigTKE=1.
+        sigTED=1.3
+c
+        ce1=1.4
+        ce2=1.9
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+c
+        cmu=0.22
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+        C1V2f=1.4
+        C2V2f=0.3
+        CLV2f=0.23
+        CetaV2f=70.
+c
+      elseif(TurbulenceModel.eq.'kepsilonzetaf') then
+c
+        ModelNumber=27
+c
+        sigT=0.9
+c
+        sigTKE=1.
+        sigTED=1.3
+c
+        ce1=1.4
+        ce2=1.9
+        ce3=0.95   !IT IS CALCULATED IN THE CODE
+c
+        cmu=0.22
+        cmu25=dsqrt(dsqrt(cmu))
+        cmu50=dsqrt(cmu)
+        cmu75=cmu25**3
+        ctrans=11.63
+        cappa=0.41
+        alpha=0.6
+        betta=6.
+c
+        C1Zeta=1.4
+        C2Zeta=0.3
+        CLZeta=0.25
+        CetaZeta=110.
+c
+      endif
+c      
+      return
+      end

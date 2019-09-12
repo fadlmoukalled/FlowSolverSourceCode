@@ -1,0 +1,2965 @@
+c
+C#############################################################################################
+      SUBROUTINE allocateStorage
+C#############################################################################################
+      use Geometry1, only:NumberOfElements,NumberOfBCSets
+      use Geometry3, only:NBFacesMax,NFacesTotal,NIFaces,NElementFaces
+      use Geometry4, only: FaceAreap,FaceAreaxp,FaceAreayp,FaceAreazp,
+     *                     BFaceAreap,BFaceAreaxp,BFaceAreayp,
+     *                     BFaceAreazp,FaceEp,FaceExp,FaceEyp,
+     *                     FaceEzp,gDiffp,FaceTp,FaceTxp,FaceTyp,
+     *                     FaceTzp,BFaceEp,BFaceExp,BFaceEyp,BFaceEzp,
+     *                     BgDiffp,BFaceTp,BFaceTxp,BFaceTyp,BFaceTzp
+      use Variables1
+      use Variables2
+      use Variables3
+      use Variables4
+      use Scalar1
+      use TransferVariable1
+      use VolumeOfFluid1
+      use TransferrField1
+      use Transient1
+      use PhysicalProperties1
+      use BoundaryConditions1
+      use BoundaryFluxes
+      use MultiGrid1
+      use Residuals1
+      use Turbulence1
+      use User0
+c*********************************************************************************************
+      implicit none
+c*********************************************************************************************
+      integer :: i,iscalar,irField,sum
+      logical :: MultiGridScalar1,MultiGridrField1
+c*********************************************************************************************
+c
+      If(LsolveMomentum) then
+c      
+        allocate(uVelocity(NumberOfElements))      
+        allocate(BuVelocity(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(vVelocity(NumberOfElements))      
+        allocate(BvVelocity(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(wVelocity(NumberOfElements))      
+        allocate(BwVelocity(NumberOfBCSets,NBFacesMax))      
+c      
+        allocate(uVelGradx(NumberOfElements))      
+        allocate(BuVelGradx(NumberOfBCSets,NBFacesMax))      
+        allocate(uVelGrady(NumberOfElements))      
+        allocate(BuVelGrady(NumberOfBCSets,NBFacesMax))      
+        allocate(uVelGradz(NumberOfElements))      
+        allocate(BuVelGradz(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(uVelGradfx(NIFaces))      
+        allocate(uVelGradfy(NIFaces))      
+        allocate(uVelGradfz(NIFaces))      
+c      
+        allocate(vVelGradx(NumberOfElements))      
+        allocate(BvVelGradx(NumberOfBCSets,NBFacesMax))      
+        allocate(vVelGrady(NumberOfElements))      
+        allocate(BvVelGrady(NumberOfBCSets,NBFacesMax))      
+        allocate(vVelGradz(NumberOfElements))      
+        allocate(BvVelGradz(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(vVelGradfx(NIFaces))      
+        allocate(vVelGradfy(NIFaces))      
+        allocate(vVelGradfz(NIFaces))      
+c      
+        allocate(wVelGradx(NumberOfElements))      
+        allocate(BwVelGradx(NumberOfBCSets,NBFacesMax))      
+        allocate(wVelGrady(NumberOfElements))      
+        allocate(BwVelGrady(NumberOfBCSets,NBFacesMax))      
+        allocate(wVelGradz(NumberOfElements))      
+        allocate(BwVelGradz(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(wVelGradfx(NIFaces))      
+        allocate(wVelGradfy(NIFaces))      
+        allocate(wVelGradfz(NIFaces))      
+c      
+        allocate(xVeldirection(NumberOfBCSets,NBFacesMax))      
+        allocate(yVeldirection(NumberOfBCSets,NBFacesMax))      
+        allocate(zVeldirection(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(Viscosity(NumberOfElements))      
+        allocate(BViscosity(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(ScMomentumx(NumberOfElements))      
+        allocate(SbMomentumx(NumberOfElements))      
+        allocate(ScMomentumy(NumberOfElements))      
+        allocate(SbMomentumy(NumberOfElements))      
+        allocate(ScMomentumz(NumberOfElements))      
+        allocate(SbMomentumz(NumberOfElements))      
+c
+        allocate(mdot(NIFaces))      
+        allocate(Bmdot(NumberOfBCSets,NBFacesMax))      
+        allocate(effdiv(NumberOfElements))      
+c
+        allocate(Du1Velocity(NumberOfElements))      
+        allocate(Du2Velocity(NumberOfElements))      
+        allocate(uVelocityStar(NumberOfElements))      
+c
+        allocate(Dv1Velocity(NumberOfElements))      
+        allocate(Dv2Velocity(NumberOfElements))      
+        allocate(vVelocityStar(NumberOfElements))      
+c
+        allocate(Dw1Velocity(NumberOfElements))      
+        allocate(Dw2Velocity(NumberOfElements))      
+        allocate(wVelocityStar(NumberOfElements))      
+c
+        allocate(MachNumber(NumberOfElements))      
+        allocate(BMachNumber(NumberOfBCSets,NBFacesMax))      
+c
+        if(LUnsteady) then
+c      
+          allocate(uVelocityOld(NumberOfElements))      
+          allocate(BuVelocityOld(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(vVelocityOld(NumberOfElements))      
+          allocate(BvVelocityOld(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(wVelocityOld(NumberOfElements))      
+          allocate(BwVelocityOld(NumberOfBCSets,NBFacesMax))      
+c      
+          allocate(uVelocityOldOld(NumberOfElements))      
+          allocate(BuVelocityOldOld(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(vVelocityOldOld(NumberOfElements))      
+          allocate(BvVelocityOldOld(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(wVelocityOldOld(NumberOfElements))      
+          allocate(BwVelocityOldOld(NumberOfBCSets,NBFacesMax))      
+c      
+          allocate(mdotOld(NIFaces))      
+          allocate(BmdotOld(NumberOfBCSets,NBFacesMax))      
+          allocate(mdotOldOld(NIFaces))      
+          allocate(BmdotOldOld(NumberOfBCSets,NBFacesMax))      
+c
+        endif
+c
+        if(Lcompressible) then
+c
+          allocate(drhodp(NumberOfElements))      
+          allocate(Bdrhodp(NumberOfBCSets,NBFacesMax))      
+c      
+        endif
+c
+      endif
+c
+      if(LConvectScalar.and..not.LsolveMomentum) then
+c      
+        allocate(uVelocity(NumberOfElements))      
+        allocate(BuVelocity(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(vVelocity(NumberOfElements))      
+        allocate(BvVelocity(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(wVelocity(NumberOfElements))      
+        allocate(BwVelocity(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(mdot(NIFaces))      
+        allocate(Bmdot(NumberOfBCSets,NBFacesMax))      
+        allocate(effdiv(NumberOfElements))      
+c
+      endif
+c
+      if(.not.LConvectScalar.and..not.LsolveMomentum) then
+        if(LSolveLambdaELEEquation) then
+c      
+          allocate(uVelocity(NumberOfElements))      
+          allocate(BuVelocity(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(vVelocity(NumberOfElements))      
+          allocate(BvVelocity(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(wVelocity(NumberOfElements))      
+          allocate(BwVelocity(NumberOfBCSets,NBFacesMax))      
+c      
+          allocate(uVelGradx(NumberOfElements))      
+          allocate(BuVelGradx(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(uVelGrady(NumberOfElements))      
+          allocate(BuVelGrady(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(uVelGradz(NumberOfElements))      
+          allocate(BuVelGradz(NumberOfBCSets,NBFacesMax))      
+c      
+          allocate(vVelGradx(NumberOfElements))      
+          allocate(BvVelGradx(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(vVelGrady(NumberOfElements))      
+          allocate(BvVelGrady(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(vVelGradz(NumberOfElements))      
+          allocate(BvVelGradz(NumberOfBCSets,NBFacesMax))      
+c      
+          allocate(wVelGradx(NumberOfElements))      
+          allocate(BwVelGradx(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(wVelGrady(NumberOfElements))      
+          allocate(BwVelGrady(NumberOfBCSets,NBFacesMax))      
+c
+          allocate(wVelGradz(NumberOfElements))      
+          allocate(BwVelGradz(NumberOfBCSets,NBFacesMax))      
+c
+        endif
+      endif
+c
+      If(LsolveContinuity) then
+c      
+        allocate(PressureC(NumberOfElements))      
+        allocate(BPressureC(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(Pressure(NumberOfElements))      
+        allocate(BPressure(NumberOfBCSets,NBFacesMax))
+c
+        allocate(PressGradx(NumberOfElements))      
+        allocate(BPressGradx(NumberOfBCSets,NBFacesMax))
+        allocate(PressGrady(NumberOfElements))      
+        allocate(BPressGrady(NumberOfBCSets,NBFacesMax))
+        allocate(PressGradz(NumberOfElements))      
+        allocate(BPressGradz(NumberOfBCSets,NBFacesMax))
+c
+        allocate(PressCGradx(NumberOfElements))      
+        allocate(BPressCGradx(NumberOfBCSets,NBFacesMax))
+        allocate(PressCGrady(NumberOfElements))      
+        allocate(BPressCGrady(NumberOfBCSets,NBFacesMax))
+        allocate(PressCGradz(NumberOfElements))      
+        allocate(BPressCGradz(NumberOfBCSets,NBFacesMax))
+c
+        allocate(PressGradfx(NIFaces))      
+        allocate(PressGradfy(NIFaces))
+        allocate(PressGradfz(NIFaces))
+c
+        allocate(PressCGradfx(NIFaces))      
+        allocate(PressCGradfy(NIFaces))
+        allocate(PressCGradfz(NIFaces))
+c
+        if(.not.LsolveMomentum) then
+c
+          allocate(drhodP(NumberOfElements))
+          allocate(BdrhodP(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(LUnsteady) then
+c
+          allocate(PressureOld(NumberOfElements))      
+          allocate(BPressureOld(NumberOfBCSets,NBFacesMax))
+c
+          allocate(PressureOldOld(NumberOfElements))      
+          allocate(BPressureOldOld(NumberOfBCSets,NBFacesMax))
+c
+          allocate(dpdt(NumberOfElements))      
+          if(.not.LsolveMomentum) allocate(mdotOld(NIFaces))      
+          if(.not.LsolveMomentum) allocate(mdotOldOld(NIFaces))      
+c
+        endif
+c
+      endif
+c
+      If(LsolveEnergy) then
+c      
+        allocate(Temperature(NumberOfElements))      
+        allocate(BTemperature(NumberOfBCSets,NBFacesMax))
+c      
+        allocate(TempGradx(NumberOfElements))      
+        allocate(BTempGradx(NumberOfBCSets,NBFacesMax))
+c      
+        allocate(TempGrady(NumberOfElements))      
+        allocate(BTempGrady(NumberOfBCSets,NBFacesMax))
+c      
+        allocate(TempGradz(NumberOfElements))      
+        allocate(BTempGradz(NumberOfBCSets,NBFacesMax))
+c
+        allocate(TempGradfx(NIFaces))      
+        allocate(TempGradfy(NIFaces))
+        allocate(TempGradfz(NIFaces))
+c
+        if(EnergyEquation.eq.'htotal') then
+c      
+          allocate(Htotal(NumberOfElements))      
+          allocate(BHtotal(NumberOfBCSets,NBFacesMax))
+c      
+          allocate(HtotalGradx(NumberOfElements))      
+          allocate(BHtotalGradx(NumberOfBCSets,NBFacesMax))
+c      
+          allocate(HtotalGrady(NumberOfElements))      
+          allocate(BHtotalGrady(NumberOfBCSets,NBFacesMax))
+c      
+          allocate(HtotalGradz(NumberOfElements))      
+          allocate(BHtotalGradz(NumberOfBCSets,NBFacesMax))
+c
+          allocate(HtotalGradfx(NIFaces))      
+          allocate(HtotalGradfy(NIFaces))
+          allocate(HtotalGradfz(NIFaces))
+c
+        endif
+c
+        allocate(Conductivity(NumberOfElements))      
+        allocate(BConductivity(NumberOfBCSets,NBFacesMax))
+c
+        allocate(SpecificHeat(NumberOfElements))      
+        allocate(BSpecificHeat(NumberOfBCSets,NBFacesMax))
+c
+        allocate(SHeatGradx(NumberOfElements))
+        allocate(SHeatGrady(NumberOfElements))
+        allocate(SHeatGradz(NumberOfElements))
+        allocate(BSHeatGradx(NumberOfBCSets,NBFacesMax))      
+        allocate(BSHeatGrady(NumberOfBCSets,NBFacesMax))      
+        allocate(BSHeatGradz(NumberOfBCSets,NBFacesMax))      
+c
+        allocate(cpterm(NumberOfElements))
+        allocate(PressureWork(NumberOfElements))
+c
+        allocate(ScEnergy(NumberOfElements))      
+        allocate(SbEnergy(NumberOfElements))      
+c
+        if(LUnsteady) then
+c
+          allocate(TemperatureOld(NumberOfElements))      
+          allocate(BTemperatureOld(NumberOfBCSets,NBFacesMax))
+c
+          allocate(SpecificHeatOld(NumberOfElements))      
+          allocate(BSpecificHeatOld(NumberOfBCSets,NBFacesMax))
+c
+          allocate(TemperatureOldOld(NumberOfElements))      
+          allocate(BTemperatureOldOld(NumberOfBCSets,NBFacesMax))
+c
+          allocate(SpecificHeatOldOld(NumberOfElements))      
+          allocate(BSpecificHeatOldOld(NumberOfBCSets,NBFacesMax))
+c
+          allocate(dCpdt(NumberOfElements))
+c
+          if(EnergyEquation.eq.'htotal') then
+c      
+            allocate(HtotalOld(NumberOfElements))      
+            allocate(BHtotalOld(NumberOfBCSets,NBFacesMax))
+            allocate(HtotalOldOld(NumberOfElements))      
+            allocate(BHtotalOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+      endif
+c
+      If(LSolveLambdaELEEquation) then
+c      
+        allocate(LambdaELE(NumberOfElements))      
+        allocate(BLambdaELE(NumberOfBCSets,NBFacesMax))
+c      
+        allocate(LambdaELEGradx(NumberOfElements))      
+        allocate(BLambdaELEGradx(NumberOfBCSets,NBFacesMax))
+c      
+        allocate(LambdaELEGrady(NumberOfElements))      
+        allocate(BLambdaELEGrady(NumberOfBCSets,NBFacesMax))
+c      
+        allocate(LambdaELEGradz(NumberOfElements))      
+        allocate(BLambdaELEGradz(NumberOfBCSets,NBFacesMax))
+c
+        allocate(LambdaELEGradfx(NIFaces))      
+        allocate(LambdaELEGradfy(NIFaces))
+        allocate(LambdaELEGradfz(NIFaces))
+c
+        allocate(scLambdaELE(NumberOfElements))      
+        allocate(sbLambdaELE(NumberOfElements))      
+c
+        allocate(InitialVelDivergence(NumberOfElements))      
+        allocate(FinalVelDivergence(NumberOfElements))      
+c
+      endif
+c
+      if(LSolveMomentum.and.LBuoyancy) then
+c
+        allocate(Buoyancyx(NumberOfElements))
+        allocate(Buoyancyy(NumberOfElements))
+        allocate(Buoyancyz(NumberOfElements))
+        allocate(Buoyancyfx(NIFaces))
+        allocate(Buoyancyfy(NIFaces))
+        allocate(Buoyancyfz(NIFaces))
+        allocate(BBuoyancyx(NumberOfBCSets,NBFacesMax))
+        allocate(BBuoyancyy(NumberOfBCSets,NBFacesMax))
+        allocate(BBuoyancyz(NumberOfBCSets,NBFacesMax))
+c
+      endif
+c
+      if(Lcompressible.and.LsolveMomentum.and..not.LsolveEnergy) then
+c      
+        allocate(Temperature(NumberOfElements))      
+        allocate(BTemperature(NumberOfBCSets,NBFacesMax))
+c
+        allocate(SpecificHeat(NumberOfElements))      
+        allocate(BSpecificHeat(NumberOfBCSets,NBFacesMax))
+c      
+      endif
+c
+      if(NumberOfScalarsToSolve.gt.0) then
+c
+        i=NumberOfScalarsToSolve
+c
+        allocate(LSoutherLandScalar(i))
+        allocate(EquationOfStateScalar(i))
+        allocate(RGasScalar(i))
+        allocate(GammaGasScalar(i))
+        allocate(PrLaminarScalar(i))
+c
+        allocate(Scalar(NumberOfElements,i))
+        allocate(BScalar(NumberOfBCSets,NBFacesMax,i))
+        allocate(ScalarT(NumberOfElements))
+        allocate(BScalarT(NumberOfBCSets,NBFacesMax))
+
+
+        allocate(ScalarGradx(NumberOfElements,i))
+        allocate(ScalarGrady(NumberOfElements,i))
+        allocate(ScalarGradz(NumberOfElements,i))
+        allocate(BScalarGradx(NumberOfBCSets,NBFacesMax,i))
+        allocate(BScalarGrady(NumberOfBCSets,NBFacesMax,i))
+        allocate(BScalarGradz(NumberOfBCSets,NBFacesMax,i))
+        allocate(ScalarGradxT(NumberOfElements))
+        allocate(ScalarGradyT(NumberOfElements))
+        allocate(ScalarGradzT(NumberOfElements))
+        allocate(BScalarGradxT(NumberOfBCSets,NBFacesMax))
+        allocate(BScalarGradyT(NumberOfBCSets,NBFacesMax))
+        allocate(BScalarGradzT(NumberOfBCSets,NBFacesMax))
+
+        allocate(ScalarGradfx(NIFaces,i))
+        allocate(ScalarGradfy(NIFaces,i))
+        allocate(ScalarGradfz(NIFaces,i))
+        allocate(ScalarGradfxT(NIFaces))
+        allocate(ScalarGradfyT(NIFaces))
+        allocate(ScalarGradfzT(NIFaces))
+
+        allocate(ScScalar(NumberOfElements,i))
+        allocate(SbScalar(NumberOfElements,i))
+        allocate(DiffusionCoefficient(NumberOfElements,i))
+        allocate(BDiffusionCoefficient(NumberOfBCSets,NBFacesMax,i))
+        allocate(SpecificHeatScalar(NumberOfElements,i))
+        allocate(BSpecificHeatScalar(NumberOfBCSets,NBFacesMax,i))
+        allocate(ScScalarT(NumberOfElements))
+        allocate(SbScalarT(NumberOfElements))
+        allocate(DiffusionCoefficientT(NumberOfElements))
+        allocate(BDiffusionCoefficientT(NumberOfBCSets,NBFacesMax))
+
+c
+        if(LUnsteady) then
+c
+          allocate(ScalarOld(NumberOfElements,i))
+          allocate(ScalarOldOld(NumberOfElements,i))
+          allocate(BScalarOld(NumberOfBCSets,NBFacesMax,i))
+          allocate(BScalarOldOld(NumberOfBCSets,NBFacesMax,i))
+          allocate(ScalarOldT(NumberOfElements))
+          allocate(ScalarOldOldT(NumberOfElements))
+          allocate(BScalarOldT(NumberOfBCSets,NBFacesMax))
+          allocate(BScalarOldOldT(NumberOfBCSets,NBFacesMax))
+          allocate(SpecificHeatScalarOld(NumberOfElements,i))
+          allocate(BSpecificHeatScalarOld(NumberOfBCSets,NBFacesMax,i))
+          allocate(SpecificHeatScalarOldOld(NumberOfElements,i))
+          allocate(BSpecificHeatScalarOldOld
+     *                                (NumberOfBCSets,NBFacesMax,i))
+c
+        endif
+c
+        if(NumberOfPointSources.ne.0) then
+c
+          if(.not.LSolveEnergy) then
+c
+            allocate(iElementPointSource(NumberofPointSources))
+            allocate(xLocationOfPointSource(NumberofPointSources))
+            allocate(yLocationOfPointSource(NumberofPointSources))
+            allocate(zLocationOfPointSource(NumberofPointSources))
+c
+          endif
+c
+          allocate(ScPointSourceScalar(NumberofPointSources,i))
+          allocate(SbPointSourceScalar(NumberofPointSources,i))
+          allocate(ScPointSourceScalarT(NumberofPointSources))
+          allocate(SbPointSourceScalarT(NumberofPointSources))
+c
+        endif
+c
+      endif
+c
+      if(NumberOfrFieldsToSolve.gt.0) then
+c
+        i=NumberOfrFieldsToSolve
+c
+        allocate(LSoutherLandrField(i))
+        allocate(EquationOfStaterField(i))
+        allocate(RGasrField(i))
+        allocate(GammaGasrField(i))
+        allocate(PrLaminarrField(i))
+c
+        allocate(rField(NumberOfElements,i))
+        allocate(BrField(NumberOfBCSets,NBFacesMax,i))
+        allocate(rFieldT(NumberOfElements))
+        allocate(BrFieldT(NumberOfBCSets,NBFacesMax))
+
+
+        allocate(rFieldGradx(NumberOfElements,i))
+        allocate(rFieldGrady(NumberOfElements,i))
+        allocate(rFieldGradz(NumberOfElements,i))
+        allocate(BrFieldGradx(NumberOfBCSets,NBFacesMax,i))
+        allocate(BrFieldGrady(NumberOfBCSets,NBFacesMax,i))
+        allocate(BrFieldGradz(NumberOfBCSets,NBFacesMax,i))
+        allocate(rFieldGradxT(NumberOfElements))
+        allocate(rFieldGradyT(NumberOfElements))
+        allocate(rFieldGradzT(NumberOfElements))
+        allocate(BrFieldGradxT(NumberOfBCSets,NBFacesMax))
+        allocate(BrFieldGradyT(NumberOfBCSets,NBFacesMax))
+        allocate(BrFieldGradzT(NumberOfBCSets,NBFacesMax))
+
+        allocate(rFieldGradfx(NIFaces,i))
+        allocate(rFieldGradfy(NIFaces,i))
+        allocate(rFieldGradfz(NIFaces,i))
+        allocate(rFieldGradfxT(NIFaces))
+        allocate(rFieldGradfyT(NIFaces))
+        allocate(rFieldGradfzT(NIFaces))
+
+        allocate(ScrField(NumberOfElements,i))
+        allocate(SbrField(NumberOfElements,i))
+
+        allocate(cosThetaF(NIFaces))
+        allocate(BcosThetaF(NumberOfBCSets,NBFacesMax))
+        allocate(cosThetaE(NumberOfElements))
+
+        allocate(ConductivityrField(NumberOfElements,i))
+        allocate(BConductivityrField(NumberOfBCSets,NBFacesMax,i))
+        allocate(SpecificHeatrField(NumberOfElements,i))
+        allocate(BSpecificHeatrField(NumberOfBCSets,NBFacesMax,i))
+        allocate(DensityrField(NumberOfElements,i))
+        allocate(BDensityrField(NumberOfBCSets,NBFacesMax,i))
+        allocate(ViscosityrField(NumberOfElements,i))
+        allocate(BViscosityrField(NumberOfBCSets,NBFacesMax,i))
+
+c
+        if(LUnsteady) then
+c
+          allocate(rFieldOld(NumberOfElements,i))
+          allocate(rFieldOldOld(NumberOfElements,i))
+          allocate(BrFieldOld(NumberOfBCSets,NBFacesMax,i))
+          allocate(BrFieldOldOld(NumberOfBCSets,NBFacesMax,i))
+          allocate(rFieldOldT(NumberOfElements))
+          allocate(rFieldOldOldT(NumberOfElements))
+          allocate(BrFieldOldT(NumberOfBCSets,NBFacesMax))
+          allocate(BrFieldOldOldT(NumberOfBCSets,NBFacesMax))
+          allocate(SpecificHeatrFieldOld(NumberOfElements,i))
+          allocate(BSpecificHeatrFieldOld(NumberOfBCSets,NBFacesMax,i))
+          allocate(SpecificHeatrFieldOldOld(NumberOfElements,i))
+          allocate(BSpecificHeatrFieldOldOld
+     *                                (NumberOfBCSets,NBFacesMax,i))
+c
+        endif
+c
+        if(LSurfaceTension) then
+c
+          allocate(Curvature(NumberOfElements))
+          allocate(BCurvature(NumberOfBCSets,NBFacesMax))
+c
+          allocate(delrFieldMagnitude(NumberOfElements))
+          allocate(BdelrFieldMagnitude(NumberOfBCSets,NBFacesMax))
+          allocate(delrFieldMagnitudeGradx(NumberOfElements))
+          allocate(BdelrFieldMagnitudeGradx(NumberOfBCSets,NBFacesMax))
+          allocate(delrFieldMagnitudeGrady(NumberOfElements))
+          allocate(BdelrFieldMagnitudeGrady(NumberOfBCSets,NBFacesMax))
+          allocate(delrFieldMagnitudeGradz(NumberOfElements))
+          allocate(BdelrFieldMagnitudeGradz(NumberOfBCSets,NBFacesMax))
+c
+          allocate(rFieldGradxxT(NumberOfElements))
+          allocate(rFieldGradxyT(NumberOfElements))
+          allocate(rFieldGradxzT(NumberOfElements))
+          allocate(BrFieldGradxxT(NumberOfBCSets,NBFacesMax))
+          allocate(BrFieldGradxyT(NumberOfBCSets,NBFacesMax))
+          allocate(BrFieldGradxzT(NumberOfBCSets,NBFacesMax))
+          allocate(rFieldGradyyT(NumberOfElements))
+          allocate(BrFieldGradyyT(NumberOfBCSets,NBFacesMax))
+          allocate(rFieldGradyzT(NumberOfElements))
+          allocate(BrFieldGradyzT(NumberOfBCSets,NBFacesMax))
+          allocate(rFieldGradzzT(NumberOfElements))
+          allocate(BrFieldGradzzT(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+      endif
+c
+c--- Density is always needed
+c 
+      allocate(Density(NumberOfElements))      
+      allocate(Densityf(NIFaces))      
+      allocate(BDensity(NumberOfBCSets,NBFacesMax))      
+      allocate(DensGradx(NumberOfElements))
+      allocate(DensGrady(NumberOfElements))
+      allocate(DensGradz(NumberOfElements))
+      allocate(BDensGradx(NumberOfBCSets,NBFacesMax))      
+      allocate(BDensGrady(NumberOfBCSets,NBFacesMax))      
+      allocate(BDensGradz(NumberOfBCSets,NBFacesMax))      
+!
+      allocate(GamaFace(NIFaces))
+      allocate(BGamaFace(NumberOfBCSets,NBFacesMax))      
+c
+      if(LUnsteady) then
+c
+        allocate(DensityOld(NumberOfElements))      
+        allocate(BDensityOld(NumberOfBCSets,NBFacesMax))
+c
+        allocate(DensityOldOld(NumberOfElements))      
+        allocate(BDensityOldOld(NumberOfBCSets,NBFacesMax))
+c
+      endif
+c
+      if(LFalseTransientMomentum) then
+c
+        allocate(DensityStar(NumberOfElements))      
+        allocate(BDensityStar(NumberOfBCSets,NBFacesMax))
+c
+      endif
+c 
+c--- Allocate storage to assemble fluxes of equations at the faces 
+c
+      allocate(FluxCf(NFacesTotal))
+      allocate(FluxFf(NFacesTotal))
+      allocate(FluxVf(NFacesTotal))
+      allocate(FluxTf(NFacesTotal))
+c
+      allocate(ac(NumberOfElements))
+c
+      if(LUnsteady) then
+        allocate(acold(NumberOfElements))
+        allocate(acoldold(NumberOfElements))
+      endif
+c
+      if(LFalseTransientMomentum) then
+        allocate(acStar(NumberOfElements))
+      endif
+c
+      allocate(anb(NumberOfElements,NElementFaces))
+      allocate(bc(NumberOfElements))
+      allocate(bcOriginal(NumberOfElements))
+      allocate(dphi(NumberOfElements))
+      allocate(dc(NumberOfElements))
+      allocate(rc(NumberOfElements))
+c
+      MultiGridScalar1=.false.
+      do iScalar=1,NumberOfScalarsToSolve
+        if(LMultigridScalar(iScalar)) MultiGridScalar1=.true.
+      enddo
+c
+      if(MultiGridScalar1.eq..false.) then
+        MultiGridrField1=.false.
+        do irField=1,NumberOfrFieldsToSolve
+          if(LMultigridrField(irField)) MultiGridrField1=.true.
+        enddo
+      endif
+c
+      if(LMultigridMomentum.or.LMultigridContinuity.or.
+     *   LMultigridEnergy.or.MultiGridScalar1.or.MultiGridrField1) then
+c
+        allocate(acMG(NumberOfElements))
+        allocate(bcMG(NumberOfElements))
+        allocate(anbMG(NumberOfElements*15))
+        allocate(maxanb(NumberOfElements))
+        allocate(Residuals(NumberOfElements))
+        allocate(dphiMG(NumberOfElements))
+c
+        allocate(NumberOfElementsMG(1))
+        allocate(NElementFacesMG(1))
+        allocate(NBChildrenMaxMG(1))
+        allocate(ijbeginE(1))
+        allocate(ijbeginN(1))
+        allocate(ijbeginNOld(1))
+        allocate(ElementNeighborMG(NumberOfElements*15))
+        allocate(NumberofElementNeighborsMG(NumberOfElements))
+c
+        allocate(Parents(NumberOfElements))
+        allocate(Children(NumberOfElements*15))
+        allocate(NumberOfChildren(NumberOfElements))
+        allocate(NeighborOfParent(NumberOfElements*15))
+        allocate(NumberOfNeighborOfParent(NumberOfElements))
+        allocate(ElementParent(NumberOfElements))
+c
+      endif
+c
+      allocate(FluxCE(NumberOfElements))
+      allocate(FluxVE(NumberOfElements))
+      allocate(FluxTE(NumberOfElements))
+c
+      if(LUnsteady) then
+        allocate(FluxCEold(NumberOfElements))
+        allocate(FluxCEoldold(NumberOfElements))
+      endif
+c
+      allocate(Sc(NumberOfElements))
+      allocate(Sb(NumberOfElements))
+c
+      if(NumberOfPointSources.ne.0.and.LSolveEnergy) then
+c
+        allocate(iElementPointSource(NumberofPointSources))
+        allocate(xLocationOfPointSource(NumberofPointSources))
+        allocate(yLocationOfPointSource(NumberofPointSources))
+        allocate(zLocationOfPointSource(NumberofPointSources))
+        allocate(ScPointSourceEnergy(NumberofPointSources))
+        allocate(SbPointSourceEnergy(NumberofPointSources))
+c
+      endif
+c
+      sum=NumberOfScalarsToSolve+NumberOfrFieldsToSolve
+      allocate(ResorAbs(18+sum))
+      allocate(ResorMax(18+sum))
+      allocate(ResorRMS(18+sum))
+      allocate(ResorScaled(18+sum))
+c
+      if(LanisotropicDiffusion) then
+c
+        allocate(FaceAreap(NIFaces))
+        allocate(FaceAreaxp(NIFaces))
+        allocate(FaceAreayp(NIFaces))
+        allocate(FaceAreazp(NIFaces))
+        allocate(BFaceAreap(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceAreaxp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceAreayp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceAreazp(NumberOfBCSets,NBFacesMax))
+        allocate(FaceEp(NIFaces))
+        allocate(FaceExp(NIFaces))
+        allocate(FaceEyp(NIFaces))
+        allocate(FaceEzp(NIFaces))
+        allocate(gDiffp(NIFaces))
+        allocate(FaceTp(NIFaces))
+        allocate(FaceTxp(NIFaces))
+        allocate(FaceTyp(NIFaces))
+        allocate(FaceTzp(NIFaces))
+        allocate(BFaceEp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceExp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceEyp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceEzp(NumberOfBCSets,NBFacesMax))
+        allocate(BgDiffp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceTp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceTxp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceTyp(NumberOfBCSets,NBFacesMax))
+        allocate(BFaceTzp(NumberOfBCSets,NBFacesMax))
+c
+        allocate(Conductivity11(NumberOfElements))
+        allocate(Conductivity12(NumberOfElements))
+        allocate(Conductivity13(NumberOfElements))
+        allocate(Conductivity22(NumberOfElements))
+        allocate(Conductivity23(NumberOfElements))
+        allocate(Conductivity33(NumberOfElements))
+        allocate(BConductivity11(NumberOfBCSets,NBFacesMax))
+        allocate(BConductivity12(NumberOfBCSets,NBFacesMax))
+        allocate(BConductivity13(NumberOfBCSets,NBFacesMax))
+        allocate(BConductivity22(NumberOfBCSets,NBFacesMax))
+        allocate(BConductivity23(NumberOfBCSets,NBFacesMax))
+        allocate(BConductivity33(NumberOfBCSets,NBFacesMax))
+c
+        if(NumberOfScalarsToSolve.gt.0) then
+c
+          allocate(DiffusionCoefficient11
+     *                 (NumberOfElements,NumberOfScalarsToSolve))
+          allocate(DiffusionCoefficient12
+     *                 (NumberOfElements,NumberOfScalarsToSolve))
+          allocate(DiffusionCoefficient13
+     *                 (NumberOfElements,NumberOfScalarsToSolve))
+          allocate(DiffusionCoefficient22
+     *                 (NumberOfElements,NumberOfScalarsToSolve))
+          allocate(DiffusionCoefficient23
+     *                 (NumberOfElements,NumberOfScalarsToSolve))
+          allocate(DiffusionCoefficient33
+     *                 (NumberOfElements,NumberOfScalarsToSolve))
+          allocate(BDiffusionCoefficient11(NumberOfBCSets,
+     *                              NBFacesMax,NumberOfScalarsToSolve))
+          allocate(BDiffusionCoefficient12(NumberOfBCSets,
+     *                              NBFacesMax,NumberOfScalarsToSolve))
+          allocate(BDiffusionCoefficient13(NumberOfBCSets,
+     *                              NBFacesMax,NumberOfScalarsToSolve))
+          allocate(BDiffusionCoefficient22(NumberOfBCSets,
+     *                              NBFacesMax,NumberOfScalarsToSolve))
+          allocate(BDiffusionCoefficient23(NumberOfBCSets,
+     *                              NBFacesMax,NumberOfScalarsToSolve))
+          allocate(BDiffusionCoefficient33(NumberOfBCSets,
+     *                              NBFacesMax,NumberOfScalarsToSolve))
+c
+        endif
+c
+      endif
+c
+      allocate(eDiffCoefficient(NumberOfElements))
+      allocate(BeDiffCoefficient(NumberOfBCSets,NBFacesMax))
+c
+      if(LTurbulentFlow.and.LsolveMomentum) then
+c
+        allocate(rhok(NumberOfElements))
+        allocate(Brhok(NumberOfBCSets,NBFacesMax))
+        allocate(drhokdx(NumberOfElements))
+        allocate(Bdrhokdx(NumberOfBCSets,NBFacesMax))
+        allocate(drhokdy(NumberOfElements))
+        allocate(Bdrhokdy(NumberOfBCSets,NBFacesMax))
+        allocate(drhokdz(NumberOfElements))
+        allocate(Bdrhokdz(NumberOfBCSets,NBFacesMax))
+        allocate(rhoTED(NumberOfElements))
+        allocate(BrhoTED(NumberOfBCSets,NBFacesMax))
+        allocate(ReT(NumberOfElements))
+        allocate(BReT(NumberOfBCSets,NBFacesMax))
+c
+        allocate(S11(NumberOfElements))
+        allocate(S12(NumberOfElements))
+        allocate(S13(NumberOfElements))
+        allocate(S22(NumberOfElements))
+        allocate(S23(NumberOfElements))
+        allocate(S33(NumberOfElements))
+        allocate(BS11(NumberOfBCSets,NBFacesMax))
+        allocate(BS12(NumberOfBCSets,NBFacesMax))
+        allocate(BS13(NumberOfBCSets,NBFacesMax))
+        allocate(BS22(NumberOfBCSets,NBFacesMax))
+        allocate(BS23(NumberOfBCSets,NBFacesMax))
+        allocate(BS33(NumberOfBCSets,NBFacesMax))
+        allocate(StrainRate(NumberOfElements))
+        allocate(BStrainRate(NumberOfBCSets,NBFacesMax))
+c
+        allocate(W11(NumberOfElements))
+        allocate(W12(NumberOfElements))
+        allocate(W13(NumberOfElements))
+        allocate(W22(NumberOfElements))
+        allocate(W23(NumberOfElements))
+        allocate(W33(NumberOfElements))
+        allocate(BW11(NumberOfBCSets,NBFacesMax))
+        allocate(BW12(NumberOfBCSets,NBFacesMax))
+        allocate(BW13(NumberOfBCSets,NBFacesMax))
+        allocate(BW22(NumberOfBCSets,NBFacesMax))
+        allocate(BW23(NumberOfBCSets,NBFacesMax))
+        allocate(BW33(NumberOfBCSets,NBFacesMax))
+        allocate(Vorticity(NumberOfElements))
+        allocate(BVorticity(NumberOfBCSets,NBFacesMax))
+c
+        allocate(Tau11(NumberOfElements))
+        allocate(Tau12(NumberOfElements))
+        allocate(Tau13(NumberOfElements))
+        allocate(Tau22(NumberOfElements))
+        allocate(Tau23(NumberOfElements))
+        allocate(Tau33(NumberOfElements))
+c
+        if(LCompressible) allocate(XiStarFmt(NumberOfElements))
+c
+        if(TurbulenceModel.eq.'kepsilonv2f') then
+c
+          allocate(Ce1Coefficient(NumberOfElements))
+          allocate(LScale(NumberOfElements))
+          allocate(TScale(NumberOfElements))
+          allocate(BLScale(NumberOfBCSets,NBFacesMax))
+          allocate(BTScale(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonzetaf') then
+c
+          allocate(Ce1Coefficient(NumberOfElements))
+          allocate(LScale(NumberOfElements))
+          allocate(TScale(NumberOfElements))
+          allocate(BLScale(NumberOfBCSets,NBFacesMax))
+          allocate(BTScale(NumberOfBCSets,NBFacesMax))
+c
+          allocate(TurbulentZetaGrad2x(NumberOfElements))
+          allocate(TurbulentZetaGrad2y(NumberOfElements))
+          allocate(TurbulentZetaGrad2z(NumberOfElements))
+          allocate(TurbulentZetaGradxy(NumberOfElements))
+          allocate(TurbulentZetaGradxz(NumberOfElements))
+          allocate(BTurbulentZetaGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(BTurbulentZetaGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(BTurbulentZetaGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(BTurbulentZetaGradxy(NumberOfBCSets,NBFacesMax))
+          allocate(BTurbulentZetaGradxz(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonrng') then
+c
+          allocate(C2eRNG(NumberOfElements))
+          allocate(sigTKERNG(NumberOfElements))
+          allocate(sigTEDRNG(NumberOfElements))
+          allocate(BsigTKERNG(NumberOfBCSets,NBFacesMax))
+          allocate(BsigTEDRNG(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'nut92') then
+c
+          allocate(TurbulenceProduction(NumberOfElements))
+          allocate(BTurbulenceProduction(NumberOfBCSets,NBFacesMax))
+c
+          allocate(TurbulentKE(NumberOfElements))
+          allocate(BTurbulentKE(NumberOfBCSets,NBFacesMax))
+c
+          allocate(ModifiedDensGradx(NumberOfElements))         
+          allocate(ModifiedDensGrady(NumberOfElements))         
+          allocate(ModifiedDensGradz(NumberOfElements))         
+          allocate(BModifiedDensGradx(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedDensGrady(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedDensGradz(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedDensGrad2x(NumberOfElements))         
+          allocate(ModifiedDensGrad2y(NumberOfElements))         
+          allocate(ModifiedDensGrad2z(NumberOfElements))         
+          allocate(BModifiedDensGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedDensGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedDensGrad2z(NumberOfBCSets,NBFacesMax))
+c
+          allocate(uVelGrad2x(NumberOfElements))         
+          allocate(BuVelGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(uVelGrad2y(NumberOfElements))         
+          allocate(BuVelGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(uVelGrad2z(NumberOfElements))         
+          allocate(BuVelGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(vVelGrad2x(NumberOfElements))         
+          allocate(BvVelGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(vVelGrad2y(NumberOfElements))         
+          allocate(BvVelGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(vVelGrad2z(NumberOfElements))         
+          allocate(BvVelGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(wVelGrad2x(NumberOfElements))         
+          allocate(BwVelGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(wVelGrad2y(NumberOfElements))         
+          allocate(BwVelGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(wVelGrad2z(NumberOfElements))         
+          allocate(BwVelGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(uvVelGradxy(NumberOfElements))         
+          allocate(BuvVelGradxy(NumberOfBCSets,NBFacesMax))
+          allocate(uwVelGradxz(NumberOfElements))         
+          allocate(BuwVelGradxz(NumberOfBCSets,NBFacesMax))
+c
+          allocate(ModifiedEDGrad2x(NumberOfElements))         
+          allocate(ModifiedEDGrad2y(NumberOfElements))         
+          allocate(ModifiedEDGrad2z(NumberOfElements))         
+          allocate(BModifiedEDGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedEDGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedEDGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedMut(NumberOfElements))         
+          allocate(BModifiedMut(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedMutGradx(NumberOfElements))         
+          allocate(ModifiedMutGrady(NumberOfElements))         
+          allocate(ModifiedMutGradz(NumberOfElements))         
+          allocate(BModifiedMutGradx(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedMutGrady(NumberOfBCSets,NBFacesMax))
+          allocate(BModifiedMutGradz(NumberOfBCSets,NBFacesMax))
+          allocate(G1Nut92(NumberOfElements))         
+          allocate(G2Nut92(NumberOfElements))         
+          allocate(F1Nut92(NumberOfElements))         
+          allocate(F2Nut92(NumberOfElements))         
+          allocate(N1Nut92(NumberOfElements))         
+          allocate(N2Nut92(NumberOfElements))         
+          allocate(BN1Nut92(NumberOfBCSets,NBFacesMax))
+          allocate(N1Nut92Gradx(NumberOfElements))         
+          allocate(N1Nut92Grady(NumberOfElements))         
+          allocate(N1Nut92Gradz(NumberOfElements))         
+          allocate(BN1Nut92Gradx(NumberOfBCSets,NBFacesMax))
+          allocate(BN1Nut92Grady(NumberOfBCSets,NBFacesMax))
+          allocate(BN1Nut92Gradz(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'sstgama') then
+c
+          allocate(F1factor(NumberOfElements))
+          allocate(BF1factor(NumberOfBCSets,NBFacesMax))
+c
+          allocate(fr1Coefficient(NumberOfElements))
+          allocate(F2factor(NumberOfElements))
+          allocate(BF2factor(NumberOfBCSets,NBFacesMax))
+          allocate(F3factor(NumberOfElements))
+          allocate(BF3factor(NumberOfBCSets,NBFacesMax))
+          allocate(F4factor(NumberOfElements))
+          allocate(BF4factor(NumberOfBCSets,NBFacesMax))
+c
+          allocate(NormalVelocity(NumberOfElements))
+          allocate(NormalVelocityGradx(NumberOfElements))
+          allocate(NormalVelocityGrady(NumberOfElements))
+          allocate(NormalVelocityGradz(NumberOfElements))
+          allocate(BNormalVelocity(NumberOfBCSets,NBFacesMax))
+          allocate(BNormalVelocityGradx(NumberOfBCSets,NBFacesMax))
+          allocate(BNormalVelocityGrady(NumberOfBCSets,NBFacesMax))
+          allocate(BNormalVelocityGradz(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonrt') then
+          allocate(fr1Coefficient(NumberOfElements))
+          allocate(f2RT(NumberOfElements))
+          allocate(Bf2RT(NumberOfBCSets,NBFacesMax))
+          allocate(velRT(NumberOfElements))
+          allocate(BvelRT(NumberOfBCSets,NBFacesMax))
+          allocate(velRTGradx(NumberOfElements))
+          allocate(BvelRTGradx(NumberOfBCSets,NBFacesMax))
+          allocate(velRTGrady(NumberOfElements))
+          allocate(BvelRTGrady(NumberOfBCSets,NBFacesMax))
+          allocate(velRTGradz(NumberOfElements))
+          allocate(BvelRTGradz(NumberOfBCSets,NBFacesMax))
+          allocate(fmuKE(NumberOfElements))
+          allocate(BfmuKE(NumberOfBCSets,NBFacesMax))
+          allocate(fmuRT(NumberOfElements))
+          allocate(BfmuRT(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentViscosityKE(NumberOfElements))
+          allocate(BTurbulentViscosityKE(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentViscosityRT(NumberOfElements))
+          allocate(BTurbulentViscosityRT(NumberOfBCSets,NBFacesMax))
+c
+          if(LKEpsilonRtRotationCurvatureCorrection.and.
+     *                    RotationCurvatureMethod.eq.'spalartshur') then
+c
+            allocate(DS11Dt(NumberOfElements))
+            allocate(DS12Dt(NumberOfElements))
+            allocate(DS13Dt(NumberOfElements))
+            allocate(DS22Dt(NumberOfElements))
+            allocate(DS23Dt(NumberOfElements))
+            allocate(DS33Dt(NumberOfElements))
+c            
+            if(LUnsteady) then
+              allocate(S11Old(NumberOfElements))
+              allocate(S12Old(NumberOfElements))
+              allocate(S13Old(NumberOfElements))
+              allocate(S22Old(NumberOfElements))
+              allocate(S23Old(NumberOfElements))
+              allocate(S33Old(NumberOfElements))
+              allocate(S11OldOld(NumberOfElements))
+              allocate(S12OldOld(NumberOfElements))
+              allocate(S13OldOld(NumberOfElements))
+              allocate(S22OldOld(NumberOfElements))
+              allocate(S23OldOld(NumberOfElements))
+              allocate(S33OldOld(NumberOfElements))
+            endif            
+          endif
+        endif
+c
+        if(TurbulenceModel.eq.'kklomega') then
+c
+          allocate(LambdaT(NumberOfElements))
+          allocate(BLambdaT(NumberOfBCSets,NBFacesMax))
+          allocate(LambdaEff(NumberOfElements))
+          allocate(BLambdaEff(NumberOfBCSets,NBFacesMax))
+          allocate(coefficientFW(NumberOfElements))
+          allocate(BcoefficientFW(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentKTs(NumberOfElements))
+          allocate(BTurbulentKTs(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentViscosityTs(NumberOfElements))
+          allocate(BTurbulentViscosityTs(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentViscosityTl(NumberOfElements))
+          allocate(BTurbulentViscosityTl(NumberOfBCSets,NBFacesMax))
+          allocate(AlfaT(NumberOfElements))
+          allocate(BAlfaT(NumberOfBCSets,NBFacesMax))
+          allocate(ProductionKT(NumberOfElements))
+          allocate(ProductionKL(NumberOfElements))
+          allocate(SourceRbp(NumberOfElements))
+          allocate(SourceRnat(NumberOfElements))
+          allocate(sqrtTurbulentKE(NumberOfElements))
+          allocate(BsqrtTurbulentKE(NumberOfBCSets,NBFacesMax))
+          allocate(sqrtTKEGradx(NumberOfElements))
+          allocate(sqrtTKEGrady(NumberOfElements))
+          allocate(sqrtTKEGradz(NumberOfElements))
+          allocate(BsqrtTKEGradx(NumberOfBCSets,NBFacesMax))
+          allocate(BsqrtTKEGrady(NumberOfBCSets,NBFacesMax))
+          allocate(BsqrtTKEGradz(NumberOfBCSets,NBFacesMax))
+c
+          if(LSolveEnergy) then
+            allocate(AlfaTheta(NumberOfElements))
+            allocate(BAlfaTheta(NumberOfBCSets,NBFacesMax))
+          endif
+c
+        endif
+c
+        if(TurbulenceModel.eq.'realizable') then
+c
+          allocate(cmuR(NumberOfElements))
+          allocate(BcmuR(NumberOfBCSets,NBFacesMax))
+          allocate(c1R(NumberOfElements))
+          allocate(Bc1R(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'spalartallmaras'.or.
+     *                    TurbulenceModel.eq.'wrayagarwal') then
+c
+          allocate(TurbulenceProduction(NumberOfElements))
+          allocate(BTurbulenceProduction(NumberOfBCSets,NBFacesMax))
+c
+          allocate(TurbulentKE(NumberOfElements))
+          allocate(BTurbulentKE(NumberOfBCSets,NBFacesMax))
+c
+          if(TurbulenceModel.eq.'spalartallmaras') then
+            allocate(TGamma(NumberOfElements))
+            allocate(BTGamma(NumberOfBCSets,NBFacesMax))
+            allocate(Stelda(NumberOfElements))
+            allocate(fwCoefficient(NumberOfElements))
+            allocate(ft2Coefficient(NumberOfElements))
+            allocate(fr1Coefficient(NumberOfElements))
+            allocate(fv1Coefficient(NumberOfElements))
+            allocate(Bfv1Coefficient(NumberOfBCSets,NBFacesMax))
+            if(LNegativeSpalartAllmaras) then
+              allocate(fnCoefficient(NumberOfElements))
+              allocate(BfnCoefficient(NumberOfBCSets,NBFacesMax))
+            endif
+            if(LSpalartAllmarasRotationCurvatureCorrection.and.
+     *                    RotationCurvatureMethod.eq.'spalartshur') then
+              allocate(DS11Dt(NumberOfElements))
+              allocate(DS12Dt(NumberOfElements))
+              allocate(DS13Dt(NumberOfElements))
+              allocate(DS22Dt(NumberOfElements))
+              allocate(DS23Dt(NumberOfElements))
+              allocate(DS33Dt(NumberOfElements))
+c            
+              if(LUnsteady) then
+                allocate(S11Old(NumberOfElements))
+                allocate(S12Old(NumberOfElements))
+                allocate(S13Old(NumberOfElements))
+                allocate(S22Old(NumberOfElements))
+                allocate(S23Old(NumberOfElements))
+                allocate(S33Old(NumberOfElements))
+                allocate(S11OldOld(NumberOfElements))
+                allocate(S12OldOld(NumberOfElements))
+                allocate(S13OldOld(NumberOfElements))
+                allocate(S22OldOld(NumberOfElements))
+                allocate(S23OldOld(NumberOfElements))
+                allocate(S33OldOld(NumberOfElements))
+              endif            
+            endif
+          elseif(TurbulenceModel.eq.'wrayagarwal') then
+            allocate(f1WA(NumberOfElements))
+            allocate(Bf1WA(NumberOfBCSets,NBFacesMax))
+            allocate(fmuWA(NumberOfElements))
+            allocate(BfmuWA(NumberOfBCSets,NBFacesMax))
+            allocate(SRateGradx(NumberOfElements))
+            allocate(BSRateGradx(NumberOfBCSets,NBFacesMax))
+            allocate(SRateGrady(NumberOfElements))
+            allocate(BSRateGrady(NumberOfBCSets,NBFacesMax))
+            allocate(SRateGradz(NumberOfElements))
+            allocate(BSRateGradz(NumberOfBCSets,NBFacesMax))
+            allocate(fr1Coefficient(NumberOfElements))
+            if(LWrayAgarwalRotationCurvatureCorrection.and.
+     *                    RotationCurvatureMethod.eq.'spalartshur') then
+              allocate(DS11Dt(NumberOfElements))
+              allocate(DS12Dt(NumberOfElements))
+              allocate(DS13Dt(NumberOfElements))
+              allocate(DS22Dt(NumberOfElements))
+              allocate(DS23Dt(NumberOfElements))
+              allocate(DS33Dt(NumberOfElements))
+c            
+              if(LUnsteady) then
+                allocate(S11Old(NumberOfElements))
+                allocate(S12Old(NumberOfElements))
+                allocate(S13Old(NumberOfElements))
+                allocate(S22Old(NumberOfElements))
+                allocate(S23Old(NumberOfElements))
+                allocate(S33Old(NumberOfElements))
+                allocate(S11OldOld(NumberOfElements))
+                allocate(S12OldOld(NumberOfElements))
+                allocate(S13OldOld(NumberOfElements))
+                allocate(S22OldOld(NumberOfElements))
+                allocate(S23OldOld(NumberOfElements))
+                allocate(S33OldOld(NumberOfElements))
+              endif            
+            endif
+          endif
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonchien'.or.
+     *       TurbulenceModel.eq.'kepsilonchc'.or.
+     *        TurbulenceModel.eq.'kepsilonkasagi'.or.
+     *         TurbulenceModel.eq.'kepsilontagawa'.or.
+     *          TurbulenceModel.eq.'kepsilonhishida'.or.
+     *           TurbulenceModel.eq.'kepsilonsharma'.or.
+     *            TurbulenceModel.eq.'kelambremhorst'.or.
+     *             TurbulenceModel.eq.'kelambremhorstm') then
+c
+          allocate(fmuCoefficient(NumberOfElements))
+          allocate(BfmuCoefficient(NumberOfBCSets,NBFacesMax))
+          allocate(f1Coefficient(NumberOfElements))
+          allocate(f2Coefficient(NumberOfElements))
+          allocate(LTKE(NumberOfElements))
+          allocate(LTED(NumberOfElements))
+c
+          if(TurbulenceModel.eq.'kepsilonsharma'.or.
+     *          TurbulenceModel.eq.'kepsilonhishida') then
+c
+            allocate(uVelGrad2x(NumberOfElements))         
+            allocate(BuVelGrad2x(NumberOfBCSets,NBFacesMax))
+            allocate(uVelGrad2y(NumberOfElements))         
+            allocate(BuVelGrad2y(NumberOfBCSets,NBFacesMax))
+            allocate(uVelGrad2z(NumberOfElements))         
+            allocate(BuVelGrad2z(NumberOfBCSets,NBFacesMax))
+            allocate(vVelGrad2x(NumberOfElements))         
+            allocate(BvVelGrad2x(NumberOfBCSets,NBFacesMax))
+            allocate(vVelGrad2y(NumberOfElements))         
+            allocate(BvVelGrad2y(NumberOfBCSets,NBFacesMax))
+            allocate(vVelGrad2z(NumberOfElements))         
+            allocate(BvVelGrad2z(NumberOfBCSets,NBFacesMax))
+            allocate(wVelGrad2x(NumberOfElements))         
+            allocate(BwVelGrad2x(NumberOfBCSets,NBFacesMax))
+            allocate(wVelGrad2y(NumberOfElements))         
+            allocate(BwVelGrad2y(NumberOfBCSets,NBFacesMax))
+            allocate(wVelGrad2z(NumberOfElements))         
+            allocate(BwVelGrad2z(NumberOfBCSets,NBFacesMax))
+            allocate(uvVelGradxy(NumberOfElements))         
+            allocate(BuvVelGradxy(NumberOfBCSets,NBFacesMax))
+            allocate(uwVelGradxz(NumberOfElements))         
+            allocate(BuwVelGradxz(NumberOfBCSets,NBFacesMax))
+c
+            allocate(sqrtTurbulentKE(NumberOfElements))
+            allocate(BsqrtTurbulentKE(NumberOfBCSets,NBFacesMax))
+            allocate(sqrtTKEGradx(NumberOfElements))
+            allocate(sqrtTKEGrady(NumberOfElements))
+            allocate(sqrtTKEGradz(NumberOfElements))
+            allocate(BsqrtTKEGradx(NumberOfBCSets,NBFacesMax))
+            allocate(BsqrtTKEGrady(NumberOfBCSets,NBFacesMax))
+            allocate(BsqrtTKEGradz(NumberOfBCSets,NBFacesMax))
+            allocate(SRateGradx(NumberOfElements))
+            allocate(SRateGrady(NumberOfElements))
+            allocate(SRateGradz(NumberOfElements))
+            allocate(BSRateGradx(NumberOfBCSets,NBFacesMax))
+            allocate(BSRateGrady(NumberOfBCSets,NBFacesMax))
+            allocate(BSRateGradz(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(TurbulenceModel.eq.'komega2006lrn') then
+c
+          allocate(alfa(NumberOfElements))
+          allocate(alfaStar(NumberOfElements))
+          allocate(bettaStar(NumberOfElements))
+          allocate(Balfa(NumberOfBCSets,NBFacesMax))
+          allocate(BalfaStar(NumberOfBCSets,NBFacesMax))
+          allocate(BbettaStar(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(TurbulenceModel.eq.'komegabsl'.or.
+     *                    TurbulenceModel.eq.'komegasst') then
+c
+          allocate(F1factor(NumberOfElements))
+          allocate(BF1factor(NumberOfBCSets,NBFacesMax))
+c
+          if(TurbulenceModel.eq.'komegasst') then
+c
+            allocate(fr1Coefficient(NumberOfElements))
+            allocate(F2factor(NumberOfElements))
+            allocate(BF2factor(NumberOfBCSets,NBFacesMax))
+            allocate(F3factor(NumberOfElements))
+            allocate(BF3factor(NumberOfBCSets,NBFacesMax))
+            allocate(F4factor(NumberOfElements))
+            allocate(BF4factor(NumberOfBCSets,NBFacesMax))
+c
+            if(LKOmegaSSTRotationCurvatureCorrection.and.
+     *                    RotationCurvatureMethod.eq.'spalartshur') then
+              allocate(DS11Dt(NumberOfElements))
+              allocate(DS12Dt(NumberOfElements))
+              allocate(DS13Dt(NumberOfElements))
+              allocate(DS22Dt(NumberOfElements))
+              allocate(DS23Dt(NumberOfElements))
+              allocate(DS33Dt(NumberOfElements))
+c            
+              if(LUnsteady) then
+                allocate(S11Old(NumberOfElements))
+                allocate(S12Old(NumberOfElements))
+                allocate(S13Old(NumberOfElements))
+                allocate(S22Old(NumberOfElements))
+                allocate(S23Old(NumberOfElements))
+                allocate(S33Old(NumberOfElements))
+                allocate(S11OldOld(NumberOfElements))
+                allocate(S12OldOld(NumberOfElements))
+                allocate(S13OldOld(NumberOfElements))
+                allocate(S22OldOld(NumberOfElements))
+                allocate(S23OldOld(NumberOfElements))
+                allocate(S33OldOld(NumberOfElements))
+              endif            
+            endif
+          endif
+c
+        endif
+c
+        if(TurbulenceModel.eq.'sstgamaretheta') then
+c
+          allocate(TGammaEff(NumberOfElements))
+c
+          allocate(F1factor(NumberOfElements))
+          allocate(BF1factor(NumberOfBCSets,NBFacesMax))
+c
+          allocate(fr1Coefficient(NumberOfElements))
+          allocate(F2factor(NumberOfElements))
+          allocate(BF2factor(NumberOfBCSets,NBFacesMax))
+          allocate(F3factor(NumberOfElements))
+          allocate(BF3factor(NumberOfBCSets,NBFacesMax))
+          allocate(F4factor(NumberOfElements))
+          allocate(BF4factor(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        allocate(TurbulentViscosity(NumberOfElements))
+        allocate(BTurbulentViscosity(NumberOfBCSets,NBFacesMax))
+c
+        if(TurbulenceModel.eq.'komega2006'.or.
+     *             TurbulenceModel.eq.'komega2006lrn') then
+c
+          allocate(TurbulentViscosity1(NumberOfElements))
+          allocate(BTurbulentViscosity1(NumberOfBCSets,NBFacesMax))
+c
+        endif
+c
+        if(LSolveTurbulenceKineticEnergy) then
+c
+          allocate(TurbulentKE(NumberOfElements))
+          allocate(BTurbulentKE(NumberOfBCSets,NBFacesMax))
+          allocate(TKEGradx(NumberOfElements))
+          allocate(BTKEGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TKEGrady(NumberOfElements))
+          allocate(BTKEGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TKEGradz(NumberOfElements))
+          allocate(BTKEGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TKEGradfx(NIFaces))
+          allocate(TKEGradfy(NIFaces))
+          allocate(TKEGradfz(NIFaces))
+          allocate(ScTKE(NumberOfElements))
+          allocate(SbTKE(NumberOfElements))
+          allocate(TurbulenceProduction(NumberOfElements))
+          allocate(BTurbulenceProduction(NumberOfBCSets,NBFacesMax))
+c
+          if(LBuoyancy) then
+            allocate(TurbulenceProductionB(NumberOfElements))
+            allocate(BTurbulenceProductionB(NumberOfBCSets,NBFacesMax))
+          endif
+c
+          if(LUnsteady) then
+            allocate(TurbulentKEOld(NumberOfElements))
+            allocate(BTurbulentKEOld(NumberOfBCSets,NBFacesMax))
+            allocate(TurbulentKEOldOld(NumberOfElements))
+            allocate(BTurbulentKEOldOld(NumberOfBCSets,NBFacesMax))
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceDissipationRate) then
+c
+          allocate(TurbulentED(NumberOfElements))
+          allocate(BTurbulentED(NumberOfBCSets,NBFacesMax))
+          allocate(TEDGradx(NumberOfElements))
+          allocate(BTEDGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TEDGrady(NumberOfElements))
+          allocate(BTEDGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TEDGradz(NumberOfElements))
+          allocate(BTEDGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TEDGradfx(NIFaces))
+          allocate(TEDGradfy(NIFaces))
+          allocate(TEDGradfz(NIFaces))
+          allocate(ScTED(NumberOfElements))
+          allocate(SbTED(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TurbulentEDOld(NumberOfElements))
+            allocate(BTurbulentEDOld(NumberOfBCSets,NBFacesMax))
+            allocate(TurbulentEDOldOld(NumberOfElements))
+            allocate(BTurbulentEDOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceSpecificDissipationRate) then
+c
+          allocate(TurbulentOmega(NumberOfElements))
+          allocate(BTurbulentOmega(NumberOfBCSets,NBFacesMax))
+          allocate(TOmegaGradx(NumberOfElements))
+          allocate(BTOmegaGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TOmegaGrady(NumberOfElements))
+          allocate(BTOmegaGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TOmegaGradz(NumberOfElements))
+          allocate(BTOmegaGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TOmegaGradfx(NIFaces))
+          allocate(TOmegaGradfy(NIFaces))
+          allocate(TOmegaGradfz(NIFaces))
+          allocate(ScTOmega(NumberOfElements))
+          allocate(SbTOmega(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TurbulentOmegaOld(NumberOfElements))
+            allocate(BTurbulentOmegaOld(NumberOfBCSets,NBFacesMax))
+            allocate(TurbulentOmegaOldOld(NumberOfElements))
+            allocate(BTurbulentOmegaOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceGammaEquation) then
+c
+          allocate(TGamma(NumberOfElements))
+          allocate(BTGamma(NumberOfBCSets,NBFacesMax))
+          allocate(TGammaGradx(NumberOfElements))
+          allocate(BTGammaGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TGammaGrady(NumberOfElements))
+          allocate(BTGammaGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TGammaGradz(NumberOfElements))
+          allocate(BTGammaGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TGammaGradfx(NIFaces))
+          allocate(TGammaGradfy(NIFaces))
+          allocate(TGammaGradfz(NIFaces))
+          allocate(ScTGamma(NumberOfElements))
+          allocate(SbTGamma(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TGammaOld(NumberOfElements))
+            allocate(BTGammaOld(NumberOfBCSets,NBFacesMax))
+            allocate(TGammaOldOld(NumberOfElements))
+            allocate(BTGammaOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+       if(LSolveTurbulenceReynoldsThetaEquation) then
+c
+          allocate(TReTheta(NumberOfElements))
+          allocate(BTReTheta(NumberOfBCSets,NBFacesMax))
+          allocate(TReThetaGradx(NumberOfElements))
+          allocate(BTReThetaGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TReThetaGrady(NumberOfElements))
+          allocate(BTReThetaGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TReThetaGradz(NumberOfElements))
+          allocate(BTReThetaGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TReThetaGradfx(NIFaces))
+          allocate(TReThetaGradfy(NIFaces))
+          allocate(TReThetaGradfz(NIFaces))
+          allocate(ScTReTheta(NumberOfElements))
+          allocate(SbTReTheta(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TReThetaOld(NumberOfElements))
+            allocate(BTReThetaOld(NumberOfBCSets,NBFacesMax))
+            allocate(TReThetaOldOld(NumberOfElements))
+            allocate(BTReThetaOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulentKL) then
+c
+          allocate(TurbulentKL(NumberOfElements))
+          allocate(BTurbulentKL(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentKLGradx(NumberOfElements))
+          allocate(BTurbulentKLGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentKLGrady(NumberOfElements))
+          allocate(BTurbulentKLGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentKLGradz(NumberOfElements))
+          allocate(BTurbulentKLGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentKLGradfx(NIFaces))
+          allocate(TurbulentKLGradfy(NIFaces))
+          allocate(TurbulentKLGradfz(NIFaces))
+          allocate(ScTurbulentKL(NumberOfElements))
+          allocate(SbTurbulentKL(NumberOfElements))
+          
+          allocate(uVelGrad2x(NumberOfElements))         
+          allocate(BuVelGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(uVelGrad2y(NumberOfElements))         
+          allocate(BuVelGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(uVelGrad2z(NumberOfElements))         
+          allocate(BuVelGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(vVelGrad2x(NumberOfElements))         
+          allocate(BvVelGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(vVelGrad2y(NumberOfElements))         
+          allocate(BvVelGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(vVelGrad2z(NumberOfElements))         
+          allocate(BvVelGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(wVelGrad2x(NumberOfElements))         
+          allocate(BwVelGrad2x(NumberOfBCSets,NBFacesMax))
+          allocate(wVelGrad2y(NumberOfElements))         
+          allocate(BwVelGrad2y(NumberOfBCSets,NBFacesMax))
+          allocate(wVelGrad2z(NumberOfElements))         
+          allocate(BwVelGrad2z(NumberOfBCSets,NBFacesMax))
+          allocate(uvVelGradxy(NumberOfElements))         
+          allocate(BuvVelGradxy(NumberOfBCSets,NBFacesMax))
+          allocate(uwVelGradxz(NumberOfElements))         
+          allocate(BuwVelGradxz(NumberOfBCSets,NBFacesMax))
+c
+          if(LUnsteady) then
+c
+            allocate(TurbulentKLOld(NumberOfElements))
+            allocate(BTurbulentKLOld(NumberOfBCSets,NBFacesMax))
+            allocate(TurbulentKLOldOld(NumberOfElements))
+            allocate(BTurbulentKLOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceV2Equation) then
+c
+          allocate(TurbulentV2(NumberOfElements))
+          allocate(BTurbulentV2(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentV2Gradx(NumberOfElements))
+          allocate(BTurbulentV2Gradx(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentV2Grady(NumberOfElements))
+          allocate(BTurbulentV2Grady(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentV2Gradz(NumberOfElements))
+          allocate(BTurbulentV2Gradz(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentV2Gradfx(NIFaces))
+          allocate(TurbulentV2Gradfy(NIFaces))
+          allocate(TurbulentV2Gradfz(NIFaces))
+          allocate(ScTurbulentV2(NumberOfElements))
+          allocate(SbTurbulentV2(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TurbulentV2Old(NumberOfElements))
+            allocate(BTurbulentV2Old(NumberOfBCSets,NBFacesMax))
+            allocate(TurbulentV2OldOld(NumberOfElements))
+            allocate(BTurbulentV2OldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceZetaEquation) then
+c
+          allocate(TurbulentZeta(NumberOfElements))
+          allocate(BTurbulentZeta(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentZetaGradx(NumberOfElements))
+          allocate(BTurbulentZetaGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentZetaGrady(NumberOfElements))
+          allocate(BTurbulentZetaGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentZetaGradz(NumberOfElements))
+          allocate(BTurbulentZetaGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TurbulentZetaGradfx(NIFaces))
+          allocate(TurbulentZetaGradfy(NIFaces))
+          allocate(TurbulentZetaGradfz(NIFaces))
+          allocate(ScTurbulentZeta(NumberOfElements))
+          allocate(SbTurbulentZeta(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TurbulentZetaOld(NumberOfElements))
+            allocate(BTurbulentZetaOld(NumberOfBCSets,NBFacesMax))
+            allocate(TurbulentZetaOldOld(NumberOfElements))
+            allocate(BTurbulentZetaOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulencefRelaxationEquation) then
+c
+          allocate(TfRelaxation(NumberOfElements))
+          allocate(BTfRelaxation(NumberOfBCSets,NBFacesMax))
+          allocate(TfRelaxationGradx(NumberOfElements))
+          allocate(BTfRelaxationGradx(NumberOfBCSets,NBFacesMax))
+          allocate(TfRelaxationGrady(NumberOfElements))
+          allocate(BTfRelaxationGrady(NumberOfBCSets,NBFacesMax))
+          allocate(TfRelaxationGradz(NumberOfElements))
+          allocate(BTfRelaxationGradz(NumberOfBCSets,NBFacesMax))
+          allocate(TfRelaxationGradfx(NIFaces))
+          allocate(TfRelaxationGradfy(NIFaces))
+          allocate(TfRelaxationGradfz(NIFaces))
+          allocate(ScTfRelaxation(NumberOfElements))
+          allocate(SbTfRelaxation(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(TfRelaxationOld(NumberOfElements))
+            allocate(BTfRelaxationOld(NumberOfBCSets,NBFacesMax))
+            allocate(TfRelaxationOldOld(NumberOfElements))
+            allocate(BTfRelaxationOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(LSolveModifiedED) then
+c
+          allocate(ModifiedED(NumberOfElements))
+          allocate(BModifiedED(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedEDGradx(NumberOfElements))
+          allocate(BModifiedEDGradx(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedEDGrady(NumberOfElements))
+          allocate(BModifiedEDGrady(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedEDGradz(NumberOfElements))
+          allocate(BModifiedEDGradz(NumberOfBCSets,NBFacesMax))
+          allocate(ModifiedEDGradfx(NIFaces))
+          allocate(ModifiedEDGradfy(NIFaces))
+          allocate(ModifiedEDGradfz(NIFaces))
+          allocate(ScModifiedED(NumberOfElements))
+          allocate(SbModifiedED(NumberOfElements))
+c
+          if(LUnsteady) then
+c
+            allocate(ModifiedEDOld(NumberOfElements))
+            allocate(BModifiedEDOld(NumberOfBCSets,NBFacesMax))
+            allocate(ModifiedEDOldOld(NumberOfElements))
+            allocate(BModifiedEDOldOld(NumberOfBCSets,NBFacesMax))
+c
+          endif
+c
+        endif
+c
+        if(NumberOfScalarsToSolve.ne.0) then
+c
+          allocate(SigScalar(NumberOfScalarsToSolve))
+c
+        endif
+c
+      endif
+c
+c--- Initialize all variables
+c
+      If(LsolveMomentum) then
+c      
+        uVelocity=0.      
+        BuVelocity=0.     
+c
+        vVelocity=0.      
+        BvVelocity=0.      
+c
+        wVelocity=0.      
+        BwVelocity=0.      
+c      
+        uVelGradx=0.  
+        BuVelGradx=0.    
+        uVelGrady=0.  
+        BuVelGrady=0.    
+        uVelGradz=0.  
+        BuVelGradz=0.    
+c      
+        vVelGradx=0.      
+        BvVelGradx=0.      
+        vVelGrady=0.    
+        BvVelGrady=0.      
+        vVelGradz=0.    
+        BvVelGradz=0.      
+c      
+        wVelGradx=0.      
+        BwVelGradx=0.      
+        wVelGrady=0.    
+        BwVelGrady=0.      
+        wVelGradz=0.    
+        BwVelGradz=0.      
+c      
+        uVelGradfx=0.  
+        uVelGradfy=0.  
+        uVelGradfz=0.  
+c      
+        vVelGradfx=0.      
+        vVelGradfy=0.    
+        vVelGradfz=0.    
+c      
+        wVelGradfx=0.      
+        wVelGradfy=0.    
+        wVelGradfz=0.    
+c 
+        Viscosity=0.   
+        BViscosity=0.  
+c
+        ScMomentumx=0.
+        SbMomentumx=0.
+        ScMomentumy=0.
+        SbMomentumy=0.
+        ScMomentumz=0.
+        SbMomentumz=0.
+c
+        mdot=0.
+        Bmdot=0.
+        effdiv=0.
+c
+        MachNumber=0.
+        BMachNumber=0.
+        if(LUnsteady) then
+c      
+          uVelocityOld=0.      
+          BuVelocityOld=0.      
+c
+          vVelocityOld=0.     
+          BvVelocityOld=0.      
+c
+          wVelocityOld=0.     
+          BwVelocityOld=0.      
+c      
+          uVelocityOldOld=0.      
+          BuVelocityOldOld=0.      
+c
+          vVelocityOldOld=0.     
+          BvVelocityOldOld=0.      
+c
+          wVelocityOldOld=0.     
+          BwVelocityOldOld=0.      
+c      
+        endif
+c
+      endif
+c
+      if(LConvectScalar.and..not.LsolveMomentum) then
+c      
+        uVelocity=0.      
+        BuVelocity=0.      
+c
+        vVelocity=0.      
+        BvVelocity=0.      
+c
+        wVelocity=0.      
+        BwVelocity=0.      
+c
+        mdot=0.
+        Bmdot=0.
+        effdiv=0.
+c
+      endif
+c
+      if(.not.LConvectScalar.and..not.LsolveMomentum) then
+        if(LSolveLambdaELEEquation) then
+c      
+          uVelocity=0.
+          BuVelocity=0.
+c
+          vVelocity=0.
+          BvVelocity=0.
+c
+          wVelocity=0.
+          BwVelocity=0.
+c      
+          uVelGradx=0.
+          BuVelGradx=0.
+c
+          uVelGrady=0.
+          BuVelGrady=0.
+c
+          uVelGradz=0.
+          BuVelGradz=0.
+c      
+          vVelGradx=0.
+          BvVelGradx=0.
+c
+          vVelGrady=0.
+          BvVelGrady=0.
+c
+          vVelGradz=0.
+          BvVelGradz=0.
+c      
+          wVelGradx=0.
+          BwVelGradx=0.
+c
+          wVelGrady=0.
+          BwVelGrady=0.
+c
+          wVelGradz=0.
+          BwVelGradz=0.
+c
+        endif
+      endif
+c
+      If(LsolveContinuity) then
+c      
+        PressureC=0.     
+        BPressureC=0.
+c
+        Pressure=0.
+        BPressure=0.
+c
+        PressGradx=0.
+        BPressGradx=0.
+        PressGrady=0.
+        BPressGrady=0.
+        PressGradz=0.
+        BPressGradz=0.
+c
+        PressGradfx=0.
+        PressGradfy=0.
+        PressGradfz=0.
+c
+        PressCGradx=0.
+        BPressCGradx=0.
+        PressCGrady=0.
+        BPressCGrady=0.
+        PressCGradz=0.
+        BPressCGradz=0.
+c
+        PressCGradfx=0.
+        PressCGradfy=0.
+        PressCGradfz=0.
+c
+        drhodP=0.
+        BdrhodP=0.
+c
+        if(LUnsteady) then
+c
+          PressureOld=0.      
+          BPressureOld=0.
+c
+          PressureOldOld=0.      
+          BPressureOldOld=0.
+c
+          mdotOld=0.     
+          BmdotOld=0.      
+          mdotOldOld=0.      
+          BmdotOldOld=0.      
+c
+        endif
+c
+      endif
+c
+      If(LsolveEnergy) then
+c      
+        Temperature=0.
+        BTemperature=0.
+c      
+        TempGradx=0.
+        BTempGradx=0.
+c      
+        TempGrady=0.
+        BTempGrady=0.
+c      
+        TempGradz=0.
+        BTempGradz=0.
+c      
+        TempGradFx=0.
+        TempGradFy=0.
+        TempGradFz=0.
+c
+        if(EnergyEquation.eq.'htotal') then 
+c      
+          Htotal=0.
+          Htotal=0.
+c      
+          HtotalGradx=0.
+          BHtotalGradx=0.
+c      
+          HtotalGrady=0.
+          BHtotalGrady=0.
+c      
+          HtotalGradz=0.
+          BHtotalGradz=0.
+c      
+          HtotalGradFx=0.
+          HtotalGradFy=0.
+          HtotalGradFz=0.
+c
+        endif
+c 
+        Conductivity=ConstantConductivity
+        BConductivity=ConstantConductivity
+c
+        SpecificHeat=ConstantSpecificHeat
+        BSpecificHeat=ConstantSpecificHeat
+c
+        ScEnergy=0.
+        SbEnergy=0.
+c
+        if(LUnsteady) then
+c
+          TemperatureOld=0.      
+          BTemperatureOld=0.
+          TemperatureOldOld=0.      
+          BTemperatureOldOld=0.
+c
+          if(EnergyEquation.eq.'htotal') then
+c
+            HtotalOld=0.      
+            BHtotalOld=0.
+            HtotalOldOld=0.      
+            BHtotalOldOld=0.
+c
+          endif
+c      
+          SpecificHeatOld=ConstantSpecificHeat      
+          BSpecificHeatOld=ConstantSpecificHeat
+c
+          SpecificHeatOldOld=ConstantSpecificHeat      
+          BSpecificHeatOldOld=ConstantSpecificHeat
+c
+        endif
+c
+      endif
+c
+      If(LSolveLambdaELEEquation) then
+c      
+        LambdaELE=0.
+        BLambdaELE=0.
+c      
+        LambdaELEGradx=0.
+        BLambdaELEGradx=0.
+c      
+        LambdaELEGrady=0.
+        BLambdaELEGrady=0.
+c      
+        LambdaELEGradz=0.
+        BLambdaELEGradz=0.
+c
+        LambdaELEGradfx=0.
+        LambdaELEGradfy=0.
+        LambdaELEGradfz=0.
+c
+        scLambdaELE=0.
+        sbLambdaELE=0.
+c
+        InitialVelDivergence=0.
+        FinalVelDivergence=0.
+c
+      endif
+c
+      if(LSolveMomentum.and.LBuoyancy) then
+c
+        Buoyancyx=0.
+        Buoyancyy=0.
+        Buoyancyz=0.
+        Buoyancyfx=0.
+        Buoyancyfy=0.
+        Buoyancyfz=0.
+        BBuoyancyx=0.
+        BBuoyancyy=0.
+        BBuoyancyz=0.
+c
+      endif
+c
+c--- Density is always needed
+c 
+      Density=ConstantDensity
+      BDensity=ConstantDensity
+c
+      if(LUnsteady) then
+c
+        DensityOld=ConstantDensity     
+        BDensityOld=ConstantDensity
+c
+        DensityOldOld=ConstantDensity     
+        BDensityOldOld=ConstantDensity
+c
+      endif
+c
+      if(LFalseTransientMomentum) then
+c
+        DensityStar=0.     
+        BDensityStar=0.
+c
+      endif
+c
+c--- Initialize algebraic multigrid variables
+c
+      if(LMultigridMomentum.or.
+     *       LMultigridContinuity.or.LMultigridEnergy) then
+c
+        acMG=0.
+        bcMG=0.
+        anbMG=0.
+        maxanb=0.
+        Residuals=0.
+        dphiMG=0.
+c
+        NumberOfElementsMG=0
+        NElementFacesMG=0
+        NBChildrenMaxMG=0
+        ijbeginE=0
+        ijbeginN=0
+        ijbeginNOld=0
+        ElementNeighborMG=0
+        NumberofElementNeighborsMG=0
+c
+        Parents=0
+        Children=0
+        NumberOfChildren=0
+        NeighborOfParent=0
+        NumberOfNeighborOfParent=0
+        ElementParent=0
+c
+      endif
+c
+c--- Allocate storage to assemble fluxes of equations at the faces 
+c
+      FluxCf=0.
+      FluxFf=0.
+      FluxVf=0.
+      FluxTf=0.
+c
+      ac=0.
+c
+      if(LUnsteady) then
+        acold=0.
+        acoldold=0.
+      endif
+c
+      if(LFalseTransientMomentum) then
+        acStar=0.
+      endif
+c
+      anb=0.
+      bc=0.
+      dphi=0.
+      dc=0.
+      rc=0.
+c
+      FluxCE=0.
+      FluxVE=0.
+      FluxTE=0.
+c
+      if(LUnsteady) then
+        FluxCEold=0.
+        FluxCEoldold=0.
+      endif
+c
+      Sc=0.
+      Sb=0.
+c
+      if(NumberofPointSources.ne.0) then
+c      
+        iElementPointSource=0
+        xLocationOfPointSource=0.
+        yLocationOfPointSource=0.
+        zLocationOfPointSource=0.
+        ScPointSourceEnergy=0.
+        SbPointSourceEnergy=0.
+c
+      endif
+c
+      LSoutherLandScalar=.false.
+      EquationOfStateScalar='constant'
+      RGasScalar=0.
+      GammaGasScalar=0.
+      PrLaminarScalar=0.
+c
+      Scalar=0.
+      BScalar=0.
+      ScalarT=0.
+      BScalarT=0.
+c
+      ScalarGradx=0.
+      ScalarGrady=0.
+      ScalarGradz=0.
+      BScalarGradx=0.
+      BScalarGrady=0.
+      BScalarGradz=0.
+      ScalarGradxT=0.
+      ScalarGradyT=0.
+      ScalarGradzT=0.
+      BScalarGradxT=0.
+      BScalarGradyT=0.
+      BScalarGradzT=0.
+c
+      ScalarGradfx=0.
+      ScalarGradfy=0.
+      ScalarGradfz=0.
+      ScalarGradfxT=0.
+      ScalarGradfyT=0.
+      ScalarGradfzT=0.
+c
+      ScScalar=0.
+      SbScalar=0.
+      DiffusionCoefficient=0.
+      BDiffusionCoefficient=0.
+      SpecificHeatScalar=0.
+      BSpecificHeatScalar=0.
+      ScScalarT=0.
+      SbScalarT=0.
+      DiffusionCoefficientT=0.
+      BDiffusionCoefficientT=0.
+      SpecificHeatScalarOld=0.
+      BSpecificHeatScalarOld=0.
+      SpecificHeatScalarOldOld=0.
+      BSpecificHeatScalarOldOld=0.
+c
+      ScPointSourceScalar=0.
+      SbPointSourceScalar=0.
+      ScPointSourceScalarT=0.
+      SbPointSourceScalarT=0.
+c
+      LSoutherLandrField=.false.
+      EquationOfStaterField='constant'
+      RGasrField=0.
+      GammaGasrField=0.
+      PrLaminarrField=0.
+c
+      rField=0.
+      BrField=0.
+      rFieldT=0.
+      BrFieldT=0.
+c
+      rFieldGradx=0.
+      rFieldGrady=0.
+      rFieldGradz=0.
+      BrFieldGradx=0.
+      BrFieldGrady=0.
+      BrFieldGradz=0.
+      rFieldGradxT=0.
+      rFieldGradyT=0.
+      rFieldGradzT=0.
+      BrFieldGradxT=0.
+      BrFieldGradyT=0.
+      BrFieldGradzT=0.
+c
+      rFieldGradfx=0.
+      rFieldGradfy=0.
+      rFieldGradfz=0.
+      rFieldGradfxT=0.
+      rFieldGradfyT=0.
+      rFieldGradfzT=0.
+c
+      ScrField=0.
+      SbrField=0.
+c
+      ConductivityrField=0.
+      BConductivityrField=0.
+      SpecificHeatrField=0.
+      BSpecificHeatrField=0.
+c
+      rFieldOld=0.
+      rFieldOldOld=0.
+      BrFieldOld=0.
+      BrFieldOldOld=0.
+      rFieldOldT=0.
+      rFieldOldOldT=0.
+      BrFieldOldT=0.
+      BrFieldOldOldT=0.
+c
+      ResorAbs=0.
+      ResorMax=0.
+      ResorRMS=0.
+      ResorScaled=0.
+c
+      if(LanisotropicDiffusion) then
+c
+        FaceAreap=0.
+        FaceAreaxp=0.
+        FaceAreayp=0.
+        FaceAreazp=0.
+        BFaceAreap=0.
+        BFaceAreaxp=0.
+        BFaceAreayp=0.
+        BFaceAreazp=0.
+        FaceEp=0.
+        FaceExp=0.
+        FaceEyp=0.
+        FaceEzp=0.
+        gDiffp=0.
+        FaceTp=0.
+        FaceTxp=0.
+        FaceTyp=0.
+        FaceTzp=0.
+        BFaceEp=0.
+        BFaceExp=0.
+        BFaceEyp=0.
+        BFaceEzp=0.
+        BgDiffp=0.
+        BFaceTp=0.
+        BFaceTxp=0.
+        BFaceTyp=0.
+        BFaceTzp=0.
+c
+        Conductivity11=0.
+        Conductivity12=0.
+        Conductivity13=0.
+        Conductivity22=0.
+        Conductivity23=0.
+        Conductivity33=0.
+        BConductivity11=0.
+        BConductivity12=0.
+        BConductivity13=0.
+        BConductivity22=0.
+        BConductivity23=0.
+        BConductivity33=0.
+c
+        if(NumberOfScalarsToSolve.gt.0) then
+c
+          DiffusionCoefficient11=0.
+          DiffusionCoefficient12=0.
+          DiffusionCoefficient13=0.
+          DiffusionCoefficient22=0.
+          DiffusionCoefficient23=0.
+          DiffusionCoefficient33=0.
+          BDiffusionCoefficient11=0.
+          BDiffusionCoefficient12=0.
+          BDiffusionCoefficient13=0.
+          BDiffusionCoefficient22=0.
+          BDiffusionCoefficient23=0.
+          BDiffusionCoefficient33=0.
+c
+        endif
+c
+      endif
+c
+      eDiffCoefficient=0.
+      BeDiffCoefficient=0.
+c
+      if(LTurbulentFlow.and.LsolveMomentum) then
+c
+        rhok=0.
+        Brhok=0.
+        drhokdx=0.
+        Bdrhokdx=0.
+        drhokdy=0.
+        Bdrhokdy=0.
+        drhokdz=0.
+        Bdrhokdz=0.
+        rhoTED=0.
+        BrhoTED=0.
+        ReT=0.
+        BReT=0.
+c
+        S11=0.
+        S12=0.
+        S13=0.
+        S22=0.
+        S23=0.
+        S33=0.
+        BS11=0.
+        BS12=0.
+        BS13=0.
+        BS22=0.
+        BS23=0.
+        BS33=0.
+        StrainRate=0.
+        BStrainRate=0.
+c
+        W11=0.
+        W12=0.
+        W13=0.
+        W22=0.
+        W23=0.
+        W33=0.
+        BW11=0.
+        BW12=0.
+        BW13=0.
+        BW22=0.
+        BW23=0.
+        BW33=0.
+        Vorticity=0.
+        BVorticity=0.
+c
+        Tau11=0.
+        Tau12=0.
+        Tau13=0.
+        Tau22=0.
+        Tau23=0.
+        Tau33=0.
+c
+        if(LCompressible) XiStarFmt=0.
+c
+        if(TurbulenceModel.eq.'kepsilonv2f') then
+c
+          Ce1Coefficient=1.4
+          LScale=1.
+          TScale=1.
+          BLScale=1.
+          BTScale=1.
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonzetaf') then
+c
+          Ce1Coefficient=1.4
+          LScale=1.
+          TScale=1.
+          BLScale=1.
+          BTScale=1.
+c
+          TurbulentZetaGrad2x=0.
+          TurbulentZetaGrad2y=0.
+          TurbulentZetaGrad2z=0.
+          TurbulentZetaGradxy=0.
+          TurbulentZetaGradxz=0.
+          BTurbulentZetaGrad2x=0.
+          BTurbulentZetaGrad2y=0.
+          BTurbulentZetaGrad2z=0.
+          BTurbulentZetaGradxy=0.
+          BTurbulentZetaGradxz=0.
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonrng') then
+c
+          C2eRNG=1.68
+          sigTKERNG=1.393
+          sigTEDRNG=1.393
+          BsigTKERNG=1.393
+          BsigTEDRNG=1.393
+c
+        endif
+c
+        if(TurbulenceModel.eq.'nut92') then
+c
+          TurbulenceProduction=0.
+          BTurbulenceProduction=0.
+c
+          TurbulentKE=0.
+          BTurbulentKE=0.
+c
+          ModifiedDensGradx=0.       
+          ModifiedDensGrady=0.
+          ModifiedDensGradz=0.
+          BModifiedDensGradx=0.
+          BModifiedDensGrady=0.
+          BModifiedDensGradz=0.
+          ModifiedDensGrad2x=0.
+          ModifiedDensGrad2y=0.
+          ModifiedDensGrad2z=0.
+          BModifiedDensGrad2x=0.
+          BModifiedDensGrad2y=0.
+          BModifiedDensGrad2z=0.
+c
+          uVelGrad2x=0.       
+          BuVelGrad2x=0.
+          uVelGrad2y=0.   
+          BuVelGrad2y=0.
+          uVelGrad2z=0.
+          BuVelGrad2z=0.
+          vVelGrad2x=0.  
+          BvVelGrad2x=0.
+          vVelGrad2y=0.
+          BvVelGrad2y=0.
+          vVelGrad2z=0.
+          BvVelGrad2z=0.
+          wVelGrad2x=0.
+          BwVelGrad2x=0.
+          wVelGrad2y=0.
+          BwVelGrad2y=0.
+          wVelGrad2z=0.
+          BwVelGrad2z=0.
+          uvVelGradxy=0.
+          BuvVelGradxy=0.
+          uwVelGradxz=0.
+          BuwVelGradxz=0.
+c
+          ModifiedEDGrad2x=0.
+          ModifiedEDGrad2y=0.
+          ModifiedEDGrad2z=0.
+          BModifiedEDGrad2x=0.
+          BModifiedEDGrad2y=0.
+          BModifiedEDGrad2z=0.
+          ModifiedMut=0.
+          BModifiedMut=0.
+          ModifiedMutGradx=0.
+          ModifiedMutGrady=0.
+          ModifiedMutGradz=0.
+          BModifiedMutGradx=0.
+          BModifiedMutGrady=0.
+          BModifiedMutGradz=0.
+          G1Nut92=0.
+          G2Nut92=0.
+          F1Nut92=0.
+          F2Nut92=0.
+          N1Nut92=0.
+          N2Nut92=0.
+          BN1Nut92=0.
+          N1Nut92Gradx=0.
+          N1Nut92Grady=0.
+          N1Nut92Gradz=0.
+          BN1Nut92Gradx=0.
+          BN1Nut92Grady=0.
+          BN1Nut92Gradz=0.
+c
+        endif
+c
+        if(TurbulenceModel.eq.'sstgama') then
+c
+          F1factor=0.
+          BF1factor=0.
+c
+          fr1Coefficient=1
+          F2factor=0.
+          BF2factor=0.
+          F3factor=0.
+          BF3factor=0.
+          F4factor=0.
+          BF4factor=0.
+c
+          NormalVelocity=0.
+          NormalVelocityGradx=0.
+          NormalVelocityGrady=0.
+          NormalVelocityGradz=0.
+          BNormalVelocity=0.
+          BNormalVelocityGradx=0.
+          BNormalVelocityGrady=0.
+          BNormalVelocityGradz=0.
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonrt') then
+          fr1Coefficient=1.
+          f2RT=1.
+          Bf2RT=1.
+          velRT=0.
+          BvelRT=0.
+          velRTGradx=0.
+          BvelRTGradx=0.
+          velRTGrady=0.
+          BvelRTGrady=0.
+          velRTGradz=0.
+          BvelRTGradz=0.
+          fmuKE=0.
+          BfmuKE=0.
+          fmuRT=0.
+          BfmuRT=0.
+          TurbulentViscosityKE=0.
+          BTurbulentViscosityKE=0.
+          TurbulentViscosityRT=0.
+          BTurbulentViscosityRT=0.
+        endif
+c
+        if(TurbulenceModel.eq.'kklomega') then
+c
+          LambdaT=0.
+          BLambdaT=0.
+          LambdaEff=0.
+          BLambdaEff=0.
+          coefficientFW=1.
+          BcoefficientFW=1.
+          TurbulentKTs=0.
+          BTurbulentKTs=0.
+          TurbulentViscosityTs=0.
+          BTurbulentViscosityTs=0.
+          TurbulentViscosityTl=0.
+          BTurbulentViscosityTl=0.
+          AlfaT=0.
+          BAlfaT=0.
+          ProductionKT=0.
+          SourceRbp=0.
+          SourceRnat=0.
+          sqrtTurbulentKE=0.
+          BsqrtTurbulentKE=0.
+          sqrtTKEGradx=0.
+          sqrtTKEGrady=0.
+          sqrtTKEGradz=0.
+          BsqrtTKEGradx=0.
+          BsqrtTKEGrady=0.
+          BsqrtTKEGradz=0.
+c
+          if(LSolveEnergy) then
+            AlfaTheta=0.
+            BAlfaTheta=0.
+          endif
+c
+        endif
+c
+        if(TurbulenceModel.eq.'realizable') then
+c
+          cmuR=0.
+          BcmuR=0.
+          c1R=0.
+          Bc1R=0.
+c
+        endif
+c
+        if(TurbulenceModel.eq.'spalartallmaras'.or.
+     *                    TurbulenceModel.eq.'wrayagarwal') then
+c
+          TurbulenceProduction=0.
+          BTurbulenceProduction=0.
+c
+          TurbulentKE=0.
+          BTurbulentKE=0.
+c
+          if(TurbulenceModel.eq.'spalartallmaras') then
+            TGamma=1.
+            BTGamma=1.
+            Stelda=0.
+            fwCoefficient=0.
+            ft2Coefficient=0.
+            fr1Coefficient=1.
+            fv1Coefficient=0.
+            Bfv1Coefficient=0.
+            if(LNegativeSpalartAllmaras) then
+              fnCoefficient=0.
+              BfnCoefficient=0.
+            endif
+            if(LSpalartAllmarasRotationCurvatureCorrection.and.
+     *                   RotationCurvatureMethod.eq.'spalartshur') then
+              DS11Dt=0.
+              DS12Dt=0.
+              DS13Dt=0.
+              DS22Dt=0.
+              DS23Dt=0.
+              DS33Dt=0.
+              if(LUnsteady) then
+                S11Old=0.
+                S12Old=0.
+                S13Old=0.
+                S22Old=0.
+                S23Old=0.
+                S33Old=0.
+                S11OldOld=0.
+                S12OldOld=0.
+                S13OldOld=0.
+                S22OldOld=0.
+                S23OldOld=0.
+                S33OldOld=0.
+              endif            
+            endif
+          elseif(TurbulenceModel.eq.'wrayagarwal') then
+            f1WA=0.
+            Bf1WA=0.
+            fmuWA=0.
+            BfmuWA=0.
+            fr1Coefficient=1.
+            SRateGradx=0.
+            BSRateGradx=0.
+            SRateGrady=0.
+            BSRateGrady=0.
+            SRateGradz=0.
+            BSRateGradz=0.
+            if(LWrayAgarwalRotationCurvatureCorrection.and.
+     *                   RotationCurvatureMethod.eq.'spalartshur') then
+              DS11Dt=0.
+              DS12Dt=0.
+              DS13Dt=0.
+              DS22Dt=0.
+              DS23Dt=0.
+              DS33Dt=0.
+              if(LUnsteady) then
+                S11Old=0.
+                S12Old=0.
+                S13Old=0.
+                S22Old=0.
+                S23Old=0.
+                S33Old=0.
+                S11OldOld=0.
+                S12OldOld=0.
+                S13OldOld=0.
+                S22OldOld=0.
+                S23OldOld=0.
+                S33OldOld=0.
+              endif            
+            endif
+          endif
+c
+          if(LUnsteady) then
+c
+            ModifiedEDOld=0.
+            BModifiedEDOld=0.
+            ModifiedEDOldOld=0.
+            BModifiedEDOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(TurbulenceModel.eq.'kepsilonchien'.or.
+     *      TurbulenceModel.eq.'kepsilonkasagi'.or.
+     *        TurbulenceModel.eq.'kepsilontagawa'.or.
+     *          TurbulenceModel.eq.'kepsilonchc'.or.
+     *             TurbulenceModel.eq.'kepsilonhishida'.or.
+     *               TurbulenceModel.eq.'kepsilonsharma'.or.
+     *                TurbulenceModel.eq.'kelambremhorst'.or.
+     *                  TurbulenceModel.eq.'kelambremhorstm') then
+          fmuCoefficient=1.
+          BfmuCoefficient=1.
+          f1Coefficient=1.
+          f2Coefficient=1.
+          LTKE=0.
+          LTED=0.
+c
+          if(TurbulenceModel.eq.'kepsilonsharma'.or.
+     *          TurbulenceModel.eq.'kepsilonhishida') then
+c
+            uVelGrad2x=0.
+            BuVelGrad2x=0.
+            uVelGrad2y=0.
+            BuVelGrad2y=0.
+            uVelGrad2z=0.
+            BuVelGrad2z=0.
+            vVelGrad2x=0.
+            BvVelGrad2x=0.
+            vVelGrad2y=0.
+            BvVelGrad2y=0.
+            vVelGrad2z=0.
+            BvVelGrad2z=0.
+            wVelGrad2x=0.
+            BwVelGrad2x=0.
+            wVelGrad2y=0.
+            BwVelGrad2y=0.
+            wVelGrad2z=0.
+            BwVelGrad2z=0.
+            uvVelGradxy=0.
+            BuvVelGradxy=0.
+            uwVelGradxz=0.
+            BuwVelGradxz=0.
+c
+            sqrtTurbulentKE=0.
+            BsqrtTurbulentKE=0.
+            sqrtTKEGradx=0.
+            sqrtTKEGrady=0.
+            sqrtTKEGradz=0.
+            BsqrtTKEGradx=0.
+            BsqrtTKEGrady=0.
+            BsqrtTKEGradz=0.
+            SRateGradx=0.
+            SRateGrady=0.
+            SRateGradz=0.
+            BSRateGradx=0.
+            BSRateGrady=0.
+            BSRateGradz=0.
+          endif
+        endif
+c
+        if(TurbulenceModel.eq.'komega2006lrn') then
+c
+          alfa=0.
+          alfaStar=0.
+          bettaStar=0.
+          Balfa=0.
+          BalfaStar=0.
+          BbettaStar=0.
+c
+        endif
+        if(TurbulenceModel.eq.'komegabsl'.or.
+     *                    TurbulenceModel.eq.'komegasst') then
+          F1factor=0.
+          BF1factor=0.
+          if(TurbulenceModel.eq.'komegasst') then
+            fr1Coefficient=1.
+            F2factor=0.
+            BF2factor=0.
+            F3factor=0.
+            BF3factor=0.
+            F4factor=0.
+            BF4factor=0.
+c
+            if(LKOmegaSSTRotationCurvatureCorrection.and.
+     *                   RotationCurvatureMethod.eq.'spalartshur') then
+              DS11Dt=0.
+              DS12Dt=0.
+              DS13Dt=0.
+              DS22Dt=0.
+              DS23Dt=0.
+              DS33Dt=0.
+              if(LUnsteady) then
+                S11Old=0.
+                S12Old=0.
+                S13Old=0.
+                S22Old=0.
+                S23Old=0.
+                S33Old=0.
+                S11OldOld=0.
+                S12OldOld=0.
+                S13OldOld=0.
+                S22OldOld=0.
+                S23OldOld=0.
+                S33OldOld=0.
+              endif            
+            endif
+          endif
+        endif
+c
+        if(TurbulenceModel.eq.'sstgamaretheta') then
+          F1factor=0.
+          BF1factor=0.
+          TGammaEff=1.
+          fr1Coefficient=1.
+          F2factor=0.
+          BF2factor=0.
+          F3factor=0.
+          BF3factor=0.
+          F4factor=0.
+          BF4factor=0.
+        endif
+c
+        TurbulentViscosity=0.
+        BTurbulentViscosity=0.
+        if(TurbulenceModel.eq.'komega2006'.or.
+     *              TurbulenceModel.eq.'komega2006lrn') then
+          TurbulentViscosity1=0.
+          BTurbulentViscosity1=0.
+        endif
+c
+        if(LSolveTurbulenceKineticEnergy) then
+c
+          TurbulentKE=0.
+          BTurbulentKE=0.
+          TKEGradx=0.
+          BTKEGradx=0.
+          TKEGrady=0.
+          BTKEGrady=0.
+          TKEGradz=0.
+          BTKEGradz=0.
+          TKEGradfx=0.
+          TKEGradfy=0.
+          TKEGradfz=0.
+          ScTKE=0.
+          SbTKE=0.
+          TurbulenceProduction=0.
+          BTurbulenceProduction=0.
+          if(LBuoyancy) then
+            TurbulenceProductionB=0.
+            BTurbulenceProductionB=0.
+          endif
+c
+          if(LUnsteady) then
+            TurbulentKEOld=0.
+            BTurbulentKEOld=0.
+            TurbulentKEOldOld=0.
+            BTurbulentKEOldOld=0.
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceDissipationRate) then
+c
+          TurbulentED=0.
+          BTurbulentED=0.
+          TEDGradx=0.
+          BTEDGradx=0.
+          TEDGrady=0.
+          BTEDGrady=0.
+          TEDGradz=0.
+          BTEDGradz=0.
+          TEDGradfx=0.
+          TEDGradfy=0.
+          TEDGradfz=0.
+          ScTED=0.
+          SbTED=0.
+c
+          if(LUnsteady) then
+            TurbulentEDOld=0.
+            BTurbulentEDOld=0.
+            TurbulentEDOldOld=0.
+            BTurbulentEDOldOld=0.
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceSpecificDissipationRate) then
+c
+          TurbulentOmega=0.
+          BTurbulentOmega=0.
+          TOmegaGradx=0.
+          BTOmegaGradx=0.
+          TOmegaGrady=0.
+          BTOmegaGrady=0.
+          TOmegaGradz=0.
+          BTOmegaGradz=0.
+          TOmegaGradfx=0.
+          TOmegaGradfy=0.
+          TOmegaGradfz=0.
+          ScTOmega=0.
+          SbTOmega=0.
+c
+          if(LUnsteady) then
+            TurbulentOmegaOld=0.
+            BTurbulentOmegaOld=0.
+            TurbulentOmegaOldOld=0.
+            BTurbulentOmegaOldOld=0.
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceGammaEquation) then
+c
+          TGamma=0.
+          BTGamma=0.
+          TGammaGradx=0.
+          BTGammaGradx=0.
+          TGammaGrady=0.
+          BTGammaGrady=0.
+          TGammaGradz=0.
+          BTGammaGradz=0.
+          TGammaGradfx=0.
+          TGammaGradfy=0.
+          TGammaGradfz=0.
+          ScTGamma=0.
+          SbTGamma=0.
+c
+          if(LUnsteady) then
+c
+            TGammaOld=0.
+            BTGammaOld=0.
+            TGammaOldOld=0.
+            BTGammaOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceReynoldsThetaEquation) then
+c
+          TReTheta=0.
+          BTReTheta=0.
+          TReThetaGradx=0.
+          BTReThetaGradx=0.
+          TReThetaGrady=0.
+          BTReThetaGrady=0.
+          TReThetaGradz=0.
+          BTReThetaGradz=0.
+          TReThetaGradfx=0.
+          TReThetaGradfy=0.
+          TReThetaGradfz=0.
+          ScTReTheta=0.
+          SbTReTheta=0.
+c
+          if(LUnsteady) then
+c
+            TReThetaOld=0.
+            BTReThetaOld=0.
+            TReThetaOldOld=0.
+            BTReThetaOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulentKL) then
+c
+          TurbulentKL=0.
+          BTurbulentKL=0.
+          TurbulentKLGradx=0.
+          BTurbulentKLGradx=0.
+          TurbulentKLGrady=0.
+          BTurbulentKLGrady=0.
+          TurbulentKLGradz=0.
+          BTurbulentKLGradz=0.
+          TurbulentKLGradfx=0.
+          TurbulentKLGradfy=0.
+          TurbulentKLGradfz=0.
+          ScTurbulentKL=0.
+          SbTurbulentKL=0.
+          uVelGrad2x=0.       
+          BuVelGrad2x=0.       
+          uVelGrad2y=0.       
+          BuVelGrad2y=0.       
+          uVelGrad2z=0.       
+          BuVelGrad2z=0.       
+          vVelGrad2x=0.       
+          BvVelGrad2x=0.       
+          vVelGrad2y=0.       
+          BvVelGrad2y=0.       
+          vVelGrad2z=0.       
+          BvVelGrad2z=0.       
+          wVelGrad2x=0.       
+          BwVelGrad2x=0.       
+          wVelGrad2y=0.       
+          BwVelGrad2y=0.       
+          wVelGrad2z=0.       
+          BwVelGrad2z=0.       
+          uvVelGradxy=0.       
+          BuvVelGradxy=0.       
+          uwVelGradxz=0.       
+          BuwVelGradxz=0.       
+c
+          if(LUnsteady) then
+c
+            TurbulentKLOld=0.
+            BTurbulentKLOld=0.
+            TurbulentKLOldOld=0.
+            BTurbulentKLOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceV2Equation) then
+c
+          TurbulentV2=0.
+          BTurbulentV2=0.
+          TurbulentV2Gradx=0.
+          BTurbulentV2Gradx=0.
+          TurbulentV2Grady=0.
+          BTurbulentV2Grady=0.
+          TurbulentV2Gradz=0.
+          BTurbulentV2Gradz=0.
+          TurbulentV2Gradfx=0.
+          TurbulentV2Gradfy=0.
+          TurbulentV2Gradfz=0.
+          ScTurbulentV2=0.
+          SbTurbulentV2=0.
+c
+          if(LUnsteady) then
+c
+            TurbulentV2Old=0.
+            BTurbulentV2Old=0.
+            TurbulentV2OldOld=0.
+            BTurbulentV2OldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulenceZetaEquation) then
+c
+          TurbulentZeta=0.
+          BTurbulentZeta=0.
+          TurbulentZetaGradx=0.
+          BTurbulentZetaGradx=0.
+          TurbulentZetaGrady=0.
+          BTurbulentZetaGrady=0.
+          TurbulentZetaGradz=0.
+          BTurbulentZetaGradz=0.
+          TurbulentZetaGradfx=0.
+          TurbulentZetaGradfy=0.
+          TurbulentZetaGradfz=0.
+          ScTurbulentZeta=0.
+          SbTurbulentZeta=0.
+c
+          if(LUnsteady) then
+c
+            TurbulentZetaOld=0.
+            BTurbulentZetaOld=0.
+            TurbulentZetaOldOld=0.
+            BTurbulentZetaOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(LSolveTurbulencefRelaxationEquation) then
+c
+          TfRelaxation=0.
+          BTfRelaxation=0.
+          TfRelaxationGradx=0.
+          BTfRelaxationGradx=0.
+          TfRelaxationGrady=0.
+          BTfRelaxationGrady=0.
+          TfRelaxationGradz=0.
+          BTfRelaxationGradz=0.
+          TfRelaxationGradfx=0.
+          TfRelaxationGradfy=0.
+          TfRelaxationGradfz=0.
+          ScTfRelaxation=0.
+          SbTfRelaxation=0.
+c
+          if(LUnsteady) then
+c
+            TfRelaxationOld=0.
+            BTfRelaxationOld=0.
+            TfRelaxationOldOld=0.
+            BTfRelaxationOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(LSolveModifiedED) then
+c
+          ModifiedED=0.
+          BModifiedED=0.
+          ModifiedEDGradx=0.
+          BModifiedEDGradx=0.
+          ModifiedEDGrady=0.
+          BModifiedEDGrady=0.
+          ModifiedEDGradz=0.
+          BModifiedEDGradz=0.
+          ModifiedEDGradfx=0.
+          ModifiedEDGradfy=0.
+          ModifiedEDGradfz=0.
+          ScModifiedED=0.
+          SbModifiedED=0.
+c
+          if(LUnsteady) then
+c
+            ModifiedEDOld=0.
+            BModifiedEDOld=0.
+            ModifiedEDOldOld=0.
+            BModifiedEDOldOld=0.
+c
+          endif
+c
+        endif
+c
+        if(NumberOfScalarsToSolve.ne.0) then
+c
+          SigScalar=0.
+c
+        endif
+c
+      endif
+c
+      return
+      end
