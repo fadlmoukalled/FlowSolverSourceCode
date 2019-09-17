@@ -63,7 +63,7 @@ c
 c--- GradientInterpolationScheme : 'average', 'upwind', 'downwind', 'averagecorrected'
 c
 C********************************************************************************************
-      entry OpenFiles   !start with a unit number 20 and above (below 20 reserved for internal use)
+      entry OpenFiles   !start with a unit number 31 and above (first 30 reserved for internal use)
 C********************************************************************************************
 c       
       PolyMeshDirectory ="C:\Fadl\SourceDecomposed July 20 2019\
@@ -73,16 +73,16 @@ c
       SolutionDirectory="C:\Fadl\SourceDecomposed July 20 2019\
      *Console1\Console1\Console1\Testing\Solution"
 c
-!      open(unit=20,status='unknown',
+!      open(unit=31,status='unknown',
 !     *   file=trim(SolutionDirectory)//"/MassFlowRate",
 !     *              access='sequential',form='formatted')
-!      open(unit=21,status='unknown',
+!      open(unit=32,status='unknown',
 !     *   file=trim(SolutionDirectory)//"/Pressure",
 !     *              access='sequential',form='formatted')
-!      open(unit=22,status='unknown',
+!      open(unit=33,status='unknown',
 !     *   file=trim(SolutionDirectory)//"/Shear",
 !     *              access='sequential',form='formatted')
-!      open(unit=23,status='unknown',
+!      open(unit=34,status='unknown',
 !     *   file=trim(SolutionDirectory)//"/TKE",
 !     *              access='sequential',form='formatted')
 c
@@ -93,7 +93,7 @@ C*******************************************************************************
 C********************************************************************************************
       LReadOldSolution=.false.
       LStructured=.false.
-      LReadSavedGrid=.false.
+      LReadSavedGrid=.true.
       LReadSavedWallDistance=.false.
       LimitTemperature=.false.
       LTurbulentFlow=.false.
@@ -154,7 +154,7 @@ c
 c
 c--- Declare whether false transient underrelaxation will be used
 c
-      LFalseTransientMomentum=.false.
+      LFalseTransientMomentum=.true.
       LFalseTransientEnergy=.false.
       LFalseTransientScalar=.false.
       LFalseTransientTKE=.false.
@@ -197,8 +197,8 @@ c
 c
 c--- Set the algorithm type
 c
-        Lsimple=.true.
-        Lsimplec=.false.
+        Lsimple=.false.
+        Lsimplec=.true.
 c
         AngularVelocityX=0.
         AngularVelocityY=0.
@@ -209,19 +209,19 @@ c
 c
 c--- Maximum number of global iterations
 c
-        IterMax=200
+        IterMax=5000
 c
 c--- Assign the monitoring location
 
-        xMonitor=3.
-        yMonitor=0.5
-        zMonitor=0.0
+        xMonitor=10.
+        yMonitor=10.
+        zMonitor=10.
 c
 c--- Reference pressure location for incompressible flows
 c
-        xRefPressure=3.
-        yRefPressure=0.5
-        zRefPressure=0.
+        xRefPressure=10.
+        yRefPressure=10.
+        zRefPressure=10.
 c
 c--- Stop criteria  1: sum of absolute residuals; 2: maximum absolute residual;
 c                   3: rms residual             ; 4: normalized residual;
@@ -274,8 +274,8 @@ c
 c
 c--- maximum number of algebraic solver iterations
 c
-      ASIterMomentum=10
-      ASIterContinuity=30
+      ASIterMomentum=30
+      ASIterContinuity=100
       ASIterTKE=3
       ASIterTED=3
       ASIterTOmega=3
@@ -306,8 +306,8 @@ c
 c
 c--- Assign the underrelaxation factors values
 c
-      urfMomentum=0.7 !0.4 !0.3
-      urfPressure=0.7 !0.6  !0.7
+      urfMomentum=0.9 !0.4 !0.3
+      urfPressure=0.9 !0.6  !0.7
       urfTKE=0.5 !0.3
       urfTED=0.5
       urfTOmega=0.5 !0.3
@@ -357,14 +357,14 @@ c
 c
 c--- Set the name of scheme to use for variables
 c
-      ConvectionSchemeMomentum='minmod'
+      ConvectionSchemeMomentum='upwind'
       ConvectionSchemeTKE='minmod'
       ConvectionSchemeTOmega='minmod'
       ConvectionSchemeTED='minmod'
       ConvectionSchemeTurbulentKL='minmod'
       ConvectionSchemeModifiedED='minmod'
       ConvectionSchemeEnergy='smart'
-      ConvectionSchemeDensity='minmod'
+      ConvectionSchemeDensity='upwind'
       ConvectionSchemeTGamma='minmod'
       ConvectionSchemeTReTheta='minmod'
       ConvectionSchemeTfRelaxation='minmod'
@@ -571,7 +571,7 @@ c-------------------------------------------------------------------------------
 c
 c--- Two models are implemented: boussinesq and rhog
 c
-      LBuoyancy=.true.
+      LBuoyancy=.false.
       BuoyancyModel='rhog' !'boussinesq'
 c
       GravityX=0.
@@ -589,13 +589,13 @@ c      MassFlowFraction(4)=0.2
 c      MassFlowFraction(5)=0.1
 c      MassFlowFraction(6)=0.1
 c
-c       LPrintMassFlowRate(1)=.true.
-c       LPrintMassFlowRate(2)=.true.
-c       LPrintMassFlowRate(3)=.true.
-c       LPrintMassFlowRate(4)=.true.
-c       LPrintMassFlowRate(5)=.true.
-c       LPrintMassFlowRate(6)=.true.
-c       LPrintMassFlowRate(7)=.true.
+       LPrintMassFlowRate(1)=.true.
+       LPrintMassFlowRate(2)=.true.
+       LPrintMassFlowRate(3)=.true.
+       LPrintMassFlowRate(4)=.true.
+       LPrintMassFlowRate(5)=.true.
+       LPrintMassFlowRate(6)=.true.
+       LPrintMassFlowRate(7)=.true.
 c       LPrintMassFlowRate(8)=.true.
 c       LPrintMassFlowRate(9)=.true.
 c       LPrintMassFlowRate(10)=.true.
@@ -655,9 +655,6 @@ c
 !      ComplianceC(6)=5.967e-10
       do i=1,NumberOfBCSets
 c
-        BoundaryType(i)='wall'
-        wallTypeM(i)='slip'
-        wallTypeC(i)='slip'
         if(i.eq.1) then
            BoundaryType(i)='inlet'
            inletTypeM(i)='specifiedvelocity'
@@ -667,11 +664,23 @@ c
            outletTypeM(i)='specifiedstaticpressure'
            outletTypeC(i)='specifiedstaticpressure'
         elseif(i.eq.3) then
-           BoundaryType(i)='symmetry'
+           BoundaryType(i)='outlet'
+           outletTypeM(i)='specifiedstaticpressure'
+           outletTypeC(i)='specifiedstaticpressure'
         elseif(i.eq.4) then
+           BoundaryType(i)='outlet'
+           outletTypeM(i)='specifiedstaticpressure'
+           outletTypeC(i)='specifiedstaticpressure'
+        elseif(i.eq.5) then
            BoundaryType(i)='wall'
-           wallTypeM(i)='slip'
-           wallTypeC(i)='slip'
+           wallTypeM(i)='noslip'
+           wallTypeC(i)='noslip'
+        elseif(i.eq.6) then
+           BoundaryType(i)='symmetry'
+        elseif(i.eq.7) then
+           BoundaryType(i)='wall'
+           wallTypeM(i)='noslip'
+           wallTypeC(i)='noslip'
         endif
 !
 c        wallTypeM(i)='noslip'
@@ -868,9 +877,9 @@ c      Reynolds=15.e6
       Minlet=0.9
 c      Taw=Tinlet*(1.+0.178*(Minlet**2))
       angle=0.*pi/180.
-      Uinfinity=1.e-5 !1.05 !Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
+      Uinfinity=5. !1.05 !Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
       Uinlet=Uinfinity !*dcos(angle)
-      Vinlet=-1. !Uinfinity*dsin(angle)
+      Vinlet=0. !Uinfinity*dsin(angle)
 c      Minlet=Uinlet/dsqrt(GammaGas*RGas*Tinlet)
 c      Uinfinity=dsqrt(Uinlet**2+Vinlet**2)
 c      Minlet=Uinfinity/dsqrt(GammaGas*RGas*Tinlet)
@@ -886,7 +895,7 @@ c
       ConstantConductivity=ConstantViscosity*
      *                 ConstantSpecificHeat/PrLaminar   !0.0242
       Pinlet=0. !29765.
-      RhoInlet=1000. !Pinlet/(RGas*Tinlet) !Reynolds*ConstantViscosity/(1.*Uinlet)
+      RhoInlet=1. !Pinlet/(RGas*Tinlet) !Reynolds*ConstantViscosity/(1.*Uinlet)
       Rhoinfinity=RhoInlet
 c      Pinlet=46040 !RhoInlet*Rgas*Tinlet                !1000. !0.*110.*133.3224
       ConstantDensity=RhoInlet  !for compressible flows it should be set to zero
@@ -988,7 +997,7 @@ c
       GrainSize=5.e-4
 c
       uVelocity=Uinlet
-      BuVelocity=0.
+      BuVelocity=Uinlet
       vVelocity=0.
       BvVelocity=0.
       wVelocity=0.
@@ -1101,20 +1110,20 @@ c
       AxisOfRotationOriginY=0.
       AxisOfRotationOriginZ=0.
 c
-!      i=2    
-!      do j=1,NBFaces(i)      
-!         BuVelocity(i,j)=0.
-!         BvVelocity(i,j)=0.
-!         BwVelocity(i,j)=0.
-!c
-!      enddo
-!      i=2     
-!      do j=1,NBFaces(i)      
-!         BuVelocity(i,j)=0.
-!         BvVelocity(i,j)=0.
-!         BwVelocity(i,j)=0.
-!c
-!      enddo
+      i=5    
+      do j=1,NBFaces(i)      
+         BuVelocity(i,j)=0.
+         BvVelocity(i,j)=0.
+         BwVelocity(i,j)=0.
+c
+      enddo
+      i=7     
+      do j=1,NBFaces(i)      
+         BuVelocity(i,j)=0.
+         BvVelocity(i,j)=0.
+         BwVelocity(i,j)=0.
+c
+      enddo
 !      i=3     
 !      do j=1,NBFaces(i)      
 !         BuVelocity(i,j)=0.
@@ -1356,7 +1365,7 @@ c
 c--- Stop criteria  1: sum of absolute residuals; 2: maximum absolute residual;
 c                   3: rms residual             ; 4: normalized residual;
 c
-        NstopType=2
+        NstopType=3
         maximumResidual=1.e-9
 c
 c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct)
@@ -1389,7 +1398,7 @@ c
 c
 c--- Set whether to print data during multigrid iterations (for testing)
 c
-        LTestMultiGrid=.true.
+        LTestMultiGrid=.false.
         nprintMG=2000
 c
 c--- Set the variable on which to base the grid agglomoration (could be a scalar)

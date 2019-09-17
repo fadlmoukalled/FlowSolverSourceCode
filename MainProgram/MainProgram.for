@@ -16,7 +16,7 @@ c
 C#############################################################################################
 cc
       PROGRAM Unstructured
-c
+c vvv
 C#############################################################################################
 c
       use User0
@@ -45,6 +45,7 @@ c
       call OpenFiles
       print*,'Setting variables to solve for...Please wait'
       call SetVariablesToSolve
+      call CalculateNumberOfVariablesToPlot
 c
       call OpenInternalFiles
 c
@@ -319,7 +320,7 @@ c
           endif
 c
           call PrintConvergenceHistory(nIter,nIterTotal,source)
-c          call PlotConvergenceHistory
+          call PlotConvergenceHistory
 c
           if(source.lt.maximumResidual) then
 c
