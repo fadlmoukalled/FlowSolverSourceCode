@@ -1,143 +1,572 @@
 !-------------------------------------------------------------------------------
 !    GnuPlot Interface
 !-------------------------------------------------------------------------------
-!    Purpose:   Object Based Interface to GnuPlot from Fortran (ogpf)
-!    Platform:  Windows XP/Vista/7/10
-!               (It should work on other platforms, see the Write2GnuPlot subroutine below)
-!    Language:  Fortran 2003 and 2008
-!    Requires:  1. Fortran 2003 compiler (e.g gfortran 4.7, IVF 12.1, ...) or 2008
-!               2. gnuplot 4.5 and higher (other previous version can be used
-!    Author:    Mohammad Rahmani
-!               Chem Eng Dep., Amirkabir Uni of Tech
-!               Tehran, Ir
-!               url: aut.ac.ir/m.rahmani
-!               email: m[dot]rahmani[at]aut[dot]ac[dot]ir
-!   License:    MIT
-
-! This file demonstrate the capability of ogpf module
-! An object based Fortran interface to gnuplot
-!
-! Acknowledgement:
-! Special thanks to Hagen Wierstorf (http://www.gnuplotting.org)
-! For vluable codes and examples on using gnuplot
-! Some examples and color palletes are provided by gnuplotting.
-!
-!
-! Revision 0.22
-! Date: Mar 9th, 2018
-! - see ogpf.f90 for details
-! - more examples to reflect the new features
-
-! Revision:  0.20
-! Date:     Feb 20th, 2018
-!  - more examples
-!  - animation of 2D and 3D plots
-
-! Revision:  0.19
-! Date:     Jan 15th, 2018
-!  - new contour plot procedure
-
-
-! Revision:  0.18
-! Date:     Dec 22th, 2017
-! More example based on ogpf 0.18
-
-! Version:  0.17
-! Date:     Dec 18th, 2017
-!   Minor corrections
-! - Multi window plots using script
-
-
-
-! Version:  0.16
-! Date:     Feb 11th, 2016
-!   Minor corrections
-!   Correct the lspec processing in plot2D_matrix_vs_vector
-!   Some examples revised!
-
-
-! Version:  0.15
-! Date:     Apr 20th, 2012
-!   Minor corrections
-!   Use of select_precision module and working precision: wp
-
-
-! Version:  0.14
-! Date:     Mar 28th, 2012
-!   Minor corrections
-!   use of import keyboard and  removing ogpf precision module
-
-
-! Version:  0.13
-! Date:     Feb 12th, 2012
-!   Minor corrections
-!   Added more samples
-!   Use ogpf precision module
-
-
-
-! Version:  0.12
-! Date:     Feb 9th, 2012
-! New examples for semilogx, semilogy, loglog
-! New set options method
-
-! Version:  0.11
-! Date:     Feb 9th, 2012
-
 subroutine PlotConvergenceHistory
-
-    use ogpf
-    use MultiGrid2, only: nIter
-    use Residuals1
-    implicit none
-    ! parameters
-    ! local variables
-    integer:: i=0
-    type(gpf):: gp
-    double precision,save, dimension(:), allocatable :: x,y
-    double precision,save, dimension(:), allocatable :: xT,yT
-        
-    if(.not.allocated(xT)) then
-      allocate(x(1))
-      allocate(y(1))
-      x(1)=1
-      y(1)=ResorMax(19)
-      allocate(xT(1))
-      allocate(yT(1))
-      xT=x
-      yT=y
-    else
-      allocate(x(size(xT)+1))
-      allocate(y(size(xT)+1))
-      x(1:size(xT))=xT(1:size(xT))
-      y(1:size(xT))=yT(1:size(xT))
-      x(size(xT)+1)=nIter
-      y(size(xT)+1)=ResorMax(19)
-      deallocate(xT,yT)
-      allocate(xT(size(x)))
-      allocate(yT(size(y)))
-      xT=x
-      yT=Y
-    endif        
-        ! Annotation: set title, xlabel, ylabel
-        call gp%title('Example 1. A simple xy plot','#990011')
-        !call gp%xlabel('my x axis ...','#99aa33',font_name="Tahoma")
-        !call gp%ylabel('my y axis ...')
-        call gp%options('set border lc "#99aa33"; set ylabel "my label..." tc "#99aa33"')
-  !
-        call gp%ylabel("y,logarithmic scale")
-        call gp%xlabel("x, normal scale")
- !     call gp%options('set logscale y2')
-        call gp%semilogy(x,y)
-!        write ( command, * ) 'gnuplot -persist ' // trim ( command_filename ) // ' &'
-     deallocate(x,y)
-    return
-    end subroutine PlotConvergenceHistory
+        use Residuals1
+        use MultiGrid2, only: nIter
+        use User0, only: LSolveMomentum,LSolveContinuity,LSolveEnergy,LSolveTurbulenceKineticEnergy,&
+                         LSolveTurbulenceDissipationRate,LSolveTurbulenceSpecificDissipationRate,&
+                         LSolveTurbulentKL,LSolveModifiedED,LSolveTurbulenceGammaEquation,&
+                         LSolveTurbulenceReynoldsThetaEquation,LSolveTurbulencefRelaxationEquation,&
+                         LSolveTurbulenceV2Equation,LSolveTurbulenceZetaEquation,LSolveLambdaELEEquation,&
+                         LSolverField,LSolveScalar,NumberOfrFieldsToSolve,NumberOfScalarsToSolve,NstopType,&
+                         rFieldName,ScalarName
+  implicit none
+  integer :: i,j,k
+  character(len = 200) :: PlotLine
+  character (len = 30) :: nVariablesChar
+!
+1       format (i7,<nVariablesPlot>e20.12)
+5       format(1x,' "iteration"')
+10      format(1x,' "x-momentum"')
+11      format(1x,' "y-momentum"')
+12      format(1x,' "z-momentum"')
+20      format(1x,' "continuity"')
+30      format(1x,' "energy"')
+40      format(1x,' "k"')
+50      format(1x,' "epsilon"')
+60      format(1x,' "omega"')
+70      format(1x,' "KL"')
+80      format(1x,' "EddyDiffusivity"')
+90      format(1x,' "Gamma"')
+100     format(1x,' "ReTheta"')
+110     format(1x,' "fRelaxation"')
+120     format(1x,' "v2"')
+130     format(1x,' "zeta"')
+140     format(1x,' "lambda"')
+150     format(1x,'"',A10,'" ')
+!  
+   if(nIter.eq.1) then 
+        k=nVariablesPlot+1
+        write(nVariablesChar , *) k
     
-    
-    
-    
-    
-    
-    
-
+        PlotLine = 'plot for [i=2:'//trim(adjustl(nVariablesChar))//'] "data.txt" using 1:i with lines title columnheader(i)'
+!--------------------------------------------------------------------------!
+        open ( unit = 24, file = "data.txt")
+!write titles of the graphs here
+!
+        write(24,5,advance='no') 
+!
+        if(LSolveMomentum) then
+            write(24,10,advance='no') 
+            write(24,11,advance='no') 
+            write(24,12,advance='no') 
+        endif
+!      
+        if(LSolveContinuity) then
+            write(24,20,advance='no') 
+        endif
+!        
+        if(LSolveEnergy) then
+            write(24,30,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceKineticEnergy) then
+            i=i+1
+            write(24,40,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceDissipationRate) then
+            write(24,50,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceSpecificDissipationRate) then
+            write(24,60,advance='no') 
+        endif
+!        
+        if(LSolveTurbulentKL) then
+            write(24,70,advance='no') 
+        endif
+!        
+        if(LSolveModifiedED) then
+            write(24,80,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceGammaEquation) then
+            write(24,90,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceReynoldsThetaEquation) then
+            write(24,100,advance='no') 
+        endif
+!        
+        if(LSolveTurbulencefRelaxationEquation) then
+            write(24,110,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceV2Equation) then
+            write(24,120,advance='no') 
+        endif
+!        
+        if(LSolveTurbulenceZetaEquation) then
+            write(24,130,advance='no') 
+        endif
+!        
+        if(LSolveLambdaELEEquation) then
+            write(24,140,advance='no') 
+        endif
+!        
+        do j=1,NumberOfrFieldsToSolve
+          if(LSolverField(j)) then
+            write(24,150,advance='no') rFieldName(j) 
+          endif
+        enddo
+!
+        do j=1,NumberOfScalarsToSolve
+          if(LSolveScalar(j)) then
+            write(24,150,advance='no') ScalarName(j) 
+          endif
+        enddo
+!   
+        write(24,*) ""
+!    
+!--------------------------------------------------------------------------!
+        open ( unit = 22, file = "commands2.txt")
+        write(22,*) 'a = 0'
+        write(22,*) 'trim(PlotLine)'
+        close(22) 
+!--------------------------------------------------------------------------!
+!Write the options here
+        open ( unit = 21, file = "commands1.txt")
+        write(21,*) 'set title "GNUFOR plot" '
+        write(21,*) 'set xlabel "Iteration" '
+        if(NstopType.eq.1) then
+          write(21,*) 'set ylabel "Absolute Residuals" '
+        elseif(NstopType.eq.2) then
+          write(21,*) 'set ylabel "Maximum Residuals" '
+        elseif(NstopType.eq.3) then
+          write(21,*) 'set ylabel "RMS Residuals" '
+        elseif(NstopType.eq.4) then
+          write(21,*) 'set ylabel "Normalized Residuals" '
+        endif
+        write(21,*) 'set grid'
+        write(21,*) 'set log y'
+        write(21,*) 'load "commands2.txt" ' 
+        write(21,*) 'if(a==1) '//trim(PlotLine)
+        write(21,*) 'reread'
+        close(21)
+!--------------------------------------------------------------------------!
+        call system('start "" gnuplot commands1.txt ')
+!--------------------------------------------------------------------------!
+    endif
+!
+    if(NstopType.eq.1) then
+!
+        i=0
+        if(LSolveMomentum) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(1)
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(2)
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(3)
+        endif
+!        
+        if(LSolveContinuity) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(5)
+        endif
+!        
+        if(LSolveEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(6)
+        endif
+!        
+        if(LSolveTurbulenceKineticEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(8)
+        endif
+!        
+        if(LSolveTurbulenceDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(9)
+        endif
+!        
+        if(LSolveTurbulenceSpecificDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(10)
+        endif
+!        
+        if(LSolveTurbulentKL) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(12)
+        endif
+!        
+        if(LSolveModifiedED) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(11)
+        endif
+!        
+        if(LSolveTurbulenceGammaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(13)
+        endif
+!        
+        if(LSolveTurbulenceReynoldsThetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(14)
+        endif
+!        
+        if(LSolveTurbulencefRelaxationEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(17)
+        endif
+!        
+        if(LSolveTurbulenceV2Equation) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(15)
+        endif
+!        
+        if(LSolveTurbulenceZetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(16)
+        endif
+!        
+        if(LSolveLambdaELEEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(18)
+        endif
+!        
+        do j=1,NumberOfrFieldsToSolve
+          if(LSolverField(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(18+j)
+          endif
+        enddo
+!
+        do j=1,NumberOfScalarsToSolve
+          if(LSolveScalar(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorAbs(18+NumberOfrFieldsToSolve+j)
+          endif
+        enddo
+!
+    elseif(NstopType.eq.2) then
+!
+        i=0
+        if(LSolveMomentum) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(1)
+            i=i+1
+            ResidualsPlot(i)=ResorMax(2)
+            i=i+1
+            ResidualsPlot(i)=ResorMax(3)
+        endif
+!        
+        if(LSolveContinuity) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(5)
+        endif
+!        
+        if(LSolveEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(6)
+        endif
+!        
+        if(LSolveTurbulenceKineticEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(8)
+        endif
+!        
+        if(LSolveTurbulenceDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(9)
+        endif
+!        
+        if(LSolveTurbulenceSpecificDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(10)
+        endif
+!        
+        if(LSolveTurbulentKL) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(12)
+        endif
+!        
+        if(LSolveModifiedED) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(11)
+        endif
+!        
+        if(LSolveTurbulenceGammaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(13)
+        endif
+!        
+        if(LSolveTurbulenceReynoldsThetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(14)
+        endif
+!        
+        if(LSolveTurbulencefRelaxationEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(17)
+        endif
+!        
+        if(LSolveTurbulenceV2Equation) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(15)
+        endif
+!        
+        if(LSolveTurbulenceZetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(16)
+        endif
+!        
+        if(LSolveLambdaELEEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(18)
+        endif
+!        
+        do j=1,NumberOfrFieldsToSolve
+          if(LSolverField(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(18+j)
+          endif
+        enddo
+!
+        do j=1,NumberOfScalarsToSolve
+          if(LSolveScalar(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorMax(18+NumberOfrFieldsToSolve+j)
+          endif
+        enddo
+!
+    elseif(NstopType.eq.3) then
+!
+        i=0
+        if(LSolveMomentum) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(1)
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(2)
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(3)
+        endif
+!        
+        if(LSolveContinuity) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(5)
+        endif
+!        
+        if(LSolveEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(6)
+        endif
+!        
+        if(LSolveTurbulenceKineticEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(8)
+        endif
+!        
+        if(LSolveTurbulenceDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(9)
+        endif
+!        
+        if(LSolveTurbulenceSpecificDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(10)
+        endif
+!        
+        if(LSolveTurbulentKL) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(12)
+        endif
+!        
+        if(LSolveModifiedED) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(11)
+        endif
+!        
+        if(LSolveTurbulenceGammaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(13)
+        endif
+!        
+        if(LSolveTurbulenceReynoldsThetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(14)
+        endif
+!        
+        if(LSolveTurbulencefRelaxationEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(17)
+        endif
+!        
+        if(LSolveTurbulenceV2Equation) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(15)
+        endif
+!        
+        if(LSolveTurbulenceZetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(16)
+        endif
+!        
+        if(LSolveLambdaELEEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(18)
+        endif
+!        
+        do j=1,NumberOfrFieldsToSolve
+          if(LSolverField(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(18+j)
+          endif
+        enddo
+!
+        do j=1,NumberOfScalarsToSolve
+          if(LSolveScalar(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorRMS(18+NumberOfrFieldsToSolve+j)
+          endif
+        enddo
+!
+    elseif(NstopType.eq.4) then
+!
+        i=0
+        if(LSolveMomentum) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(1)
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(2)
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(3)
+        endif
+!        
+        if(LSolveContinuity) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(5)
+        endif
+!        
+        if(LSolveEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(6)
+        endif
+!        
+        if(LSolveTurbulenceKineticEnergy) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(8)
+        endif
+!        
+        if(LSolveTurbulenceDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(9)
+        endif
+!        
+        if(LSolveTurbulenceSpecificDissipationRate) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(10)
+        endif
+!        
+        if(LSolveTurbulentKL) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(12)
+        endif
+!        
+        if(LSolveModifiedED) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(11)
+        endif
+!        
+        if(LSolveTurbulenceGammaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(13)
+        endif
+!        
+        if(LSolveTurbulenceReynoldsThetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(14)
+        endif
+!        
+        if(LSolveTurbulencefRelaxationEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(17)
+        endif
+!        
+        if(LSolveTurbulenceV2Equation) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(15)
+        endif
+!        
+        if(LSolveTurbulenceZetaEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(16)
+        endif
+!        
+        if(LSolveLambdaELEEquation) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(18)
+        endif
+!        
+        do j=1,NumberOfrFieldsToSolve
+          if(LSolverField(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(18+j)
+          endif
+        enddo
+!
+        do j=1,NumberOfScalarsToSolve
+          if(LSolveScalar(j)) then
+            i=i+1
+            ResidualsPlot(i)=ResorScaled(18+NumberOfrFieldsToSolve+j)
+          endif
+        enddo
+!        
+    endif
+!
+    write ( 24,1) nIter,(ResidualsPlot(i),i=1,nVariablesPlot)
+!--------------------------------------------------------------!
+!Should be added directly after writing residuals to the files\
+!
+        open ( unit = 22, file = "commands2.txt")
+        write(22,*) 'a=1'
+        close(22)
+        open ( unit = 22, file = "commands2.txt")
+        write(22,*) 'a=0'
+        close(22)
+!--------------------------------------------------------------!
+        return   
+!    call sleep(1/100)
+ end subroutine PlotConvergenceHistory
+!    
+ Subroutine CalculateNumberOfVariablesToPlot
+!
+        use User0, only: LSolveMomentum,LSolveContinuity,LSolveEnergy,LSolveTurbulenceKineticEnergy,&
+                         LSolveTurbulenceDissipationRate,LSolveTurbulenceSpecificDissipationRate,&
+                         LSolveTurbulentKL,LSolveModifiedED,LSolveTurbulenceGammaEquation,&
+                         LSolveTurbulenceReynoldsThetaEquation,LSolveTurbulencefRelaxationEquation,&
+                         LSolveTurbulenceV2Equation,LSolveTurbulenceZetaEquation,LSolveLambdaELEEquation,&
+                         LSolverField,LSolveScalar,NumberOfrFieldsToSolve,NumberOfScalarsToSolve
+        use Residuals1
+!
+    implicit none   
+!    
+        integer :: i
+!            
+        nVariablesPlot=0
+!      
+        if(LSolveMomentum) nVariablesPlot=nVariablesPlot+3
+        if(LSolveContinuity) nVariablesPlot=nVariablesPlot+1
+        if(LSolveEnergy) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceKineticEnergy) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceDissipationRate) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceSpecificDissipationRate) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulentKL) nVariablesPlot=nVariablesPlot+1
+        if(LSolveModifiedED) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceGammaEquation) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceReynoldsThetaEquation) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulencefRelaxationEquation) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceV2Equation) nVariablesPlot=nVariablesPlot+1
+        if(LSolveTurbulenceZetaEquation) nVariablesPlot=nVariablesPlot+1
+        if(LSolveLambdaELEEquation) nVariablesPlot=nVariablesPlot+1
+!      
+        do i=1,NumberOfrFieldsToSolve
+            if(LSolverField(i)) nVariablesPlot=nVariablesPlot+1
+        enddo
+        do i=1,NumberOfScalarsToSolve
+            if(LSolveScalar(i)) nVariablesPlot=nVariablesPlot+1
+        enddo
+        allocate(ResidualsPlot(nVariablesPlot))
+ end Subroutine CalculateNumberOfVariablesToPlot   
