@@ -8,6 +8,7 @@
       logical, save :: LprintParaviewNodeBased=.false.
       logical, save :: LprintParaviewCellBased=.true.
       logical, save :: LprintParaviewFile=.true.
+      logical, save :: LprintResultsFile=.false.
       integer, save :: nInterPoints=4     !needed for Lambda Euler Lagrange
       character*200, save :: NeutralMeshdirectory,PolyMeshdirectory,SolutionDirectory
       double precision, save :: GridScalex=1.d0
@@ -57,7 +58,7 @@
 !
       character*80, save :: name
       character*80, save :: FilNeu,FilGrd,Filin,Filout,Filres
-      character*80, save :: Filprint,FilMG,Filwdist,Filold
+      character*80, save :: Filprint,FilMG,Filwdist,Filold,Filgnuplot
       character*100, save :: Filcf
       logical, save :: LStructured=.false.
       logical, save :: LReadSavedGrid=.false.

@@ -408,7 +408,8 @@ c
 c
       enddo
 c
-      call printresults(t1)
+      if(LprintResultsFile) call printresults(t1)
+      call CommitTognufile
 c
       pause
       end
@@ -418,9 +419,9 @@ C###############################################################################
 C#############################################################################################
 c
       use User0, only: MeshType,name,FilNeu,Filprint,Filin,Filres,
-     *                 Filout,Filwdist,Filold,FilMG,LTestMultiGrid,
-     *                 NeutralMeshDirectory,SolutionDirectory,
-     *                 LReadOldSolution,LUnsteady
+     *                 Filout,Filwdist,Filold,Filgnuplot,FilMG,
+     *                 LTestMultiGrid,NeutralMeshDirectory,
+     *                 SolutionDirectory,LReadOldSolution,LUnsteady
 c********************************************************************************************
       implicit none
 c********************************************************************************************
@@ -437,6 +438,7 @@ c
       Filout=trim(name)//'.out'
       Filwdist=trim(name)//'.norm'
       Filold=trim(name)//'.old'
+      Filgnuplot=trim(name)//'gnuplot.res'
 C
       if(MeshType.eq.'neutral') 
      *  open (unit=1,file=trim(NeutralMeshDirectory)//'/'//trim(FilNeu))
@@ -448,6 +450,7 @@ C
       open (unit=12,file=trim(SolutionDirectory)//'/'//trim(Filprint))
       open (unit=13,file=trim(SolutionDirectory)//'/'//trim(Filres))
       open (unit=15,file=trim(SolutionDirectory)//'/'//trim(Filwdist))
+      open (unit=25,file=trim(SolutionDirectory)//'/'//trim(Filgnuplot))
 c
       if(MeshType.eq.'neutral') rewind 1
       if(LReadOldSolution) rewind 4
