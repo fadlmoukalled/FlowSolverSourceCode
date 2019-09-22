@@ -67,11 +67,11 @@ C*******************************************************************************
 C********************************************************************************************
 c       
       PolyMeshDirectory ="C:\Fadl\SourceDecomposed July 20 2019\
-     *Console1\Console1\Console1\Testing\polyMesh"
+     *Console1\Console1\Console1\Buildings\polyMesh"
       NeutralMeshDirectory ="C:\Fadl\SourceDecomposed July 20 2019\
-     *Console1\Console1\Console1\Testing\NeutralMesh"
+     *Console1\Console1\Console1\Buildings\NeutralMesh"
       SolutionDirectory="C:\Fadl\SourceDecomposed July 20 2019\
-     *Console1\Console1\Console1\Testing\Solution"
+     *Console1\Console1\Console1\Buildings\Solution"
 c
 !      open(unit=31,status='unknown',
 !     *   file=trim(SolutionDirectory)//"/MassFlowRate",
@@ -91,19 +91,24 @@ c
 C********************************************************************************************
       entry SetVariablesToSolve
 C********************************************************************************************
-      LReadOldSolution=.false.
+      LReadOldSolution=.true.
       LStructured=.false.
       LReadSavedGrid=.true.
-      LReadSavedWallDistance=.false.
+      LReadSavedWallDistance=.true.
+      GridScalex=1.d0
+      GridScaley=1.d0
+      GridScalez=1.d0
       LimitTemperature=.false.
-      LTurbulentFlow=.false.
-      TurbulenceModel='spalartallmaras' 
-      WallTreatment='lowreynoldsnumber' 
+      LTurbulentFlow=.true.
+      TurbulenceModel='komegasst' 
+      WallTreatment='wallfunctions' 
+      WallFunctionKind='equilibrium'
 c
       MeshType='polymesh'
-      LprintParaviewNodeBased=.true.
-      LprintParaviewCellBased=.true.
-      LprintParaviewFile=.true.
+      LprintParaviewNodeBased=.false.
+      LprintParaviewCellBased=.false.
+      LprintParaviewFile=.false.
+      LprintResultsFile=.false.
 c
 c--- Set the type of flow to solve
 c
@@ -112,18 +117,18 @@ c
       LUnsteady=.false.
       LCoriolis=.false.
       LFreeSurfaceFlow=.false.
-      LanisotropicDiffusion=.true.  !should always be true for LambdaELE
+      LanisotropicDiffusion=.false.  !should always be true for LambdaELE
       LBuoyancy=.false.
       LSurfaceTension=.false.
 c
 c---- Set variables to solve
 c
-      LSolveMomentum=.false.
-      LSolveContinuity=.false.
-      LSolveEnergy=.false.
-      LSolveTurbulenceKineticEnergy=.false.
+      LSolveMomentum=.true.
+      LSolveContinuity=.true.
+      LSolveEnergy=.true.
+      LSolveTurbulenceKineticEnergy=.true.
       LSolveTurbulenceDissipationRate=.false.
-      LSolveTurbulenceSpecificDissipationRate=.false.
+      LSolveTurbulenceSpecificDissipationRate=.true.
       LSolveTurbulentKL=.false.
       LSolveModifiedED=.false.
       LSolveTurbulenceGammaEquation=.false.
@@ -131,7 +136,7 @@ c
       LSolveTurbulencefRelaxationEquation=.false.
       LSolveTurbulenceV2Equation=.false.
       LSolveTurbulenceZetaEquation=.false.
-      LSolveLambdaELEEquation=.true.
+      LSolveLambdaELEEquation=.false.
 c
       EnergyEquation='temperature'
 c
@@ -154,7 +159,7 @@ c
 c
 c--- Declare whether false transient underrelaxation will be used
 c
-      LFalseTransientMomentum=.true.
+      LFalseTransientMomentum=.false.
       LFalseTransientEnergy=.false.
       LFalseTransientScalar=.false.
       LFalseTransientTKE=.false.
@@ -172,8 +177,8 @@ c
 c
 c--- Assign the false time step values
 c
-      FalseDtMomentum=1.e-2
-      FalseDtEnergy=1.e-3
+      FalseDtMomentum=1. !e-2
+      FalseDtEnergy=1.e-2
       FalseDtTKE=1.e-5
       FalseDtTOmega=1.e-5
       FalseDtModifiedED=1.e-3
@@ -197,8 +202,8 @@ c
 c
 c--- Set the algorithm type
 c
-        Lsimple=.false.
-        Lsimplec=.true.
+        Lsimple=.true.
+        Lsimplec=.false.
 c
         AngularVelocityX=0.
         AngularVelocityY=0.
@@ -209,7 +214,7 @@ c
 c
 c--- Maximum number of global iterations
 c
-        IterMax=5000
+        IterMax=5
 c
 c--- Assign the monitoring location
 
@@ -258,7 +263,7 @@ c
 c
 c--- Residual reduction factor of variables while solving their algebraic equations
 c
-      rrfMomentum=0.1
+      rrfMomentum=0.01
       rrfContinuity=0.001
       rrfTKE=0.1
       rrfTED=0.1
@@ -274,14 +279,14 @@ c
 c
 c--- maximum number of algebraic solver iterations
 c
-      ASIterMomentum=30
+      ASIterMomentum=10
       ASIterContinuity=100
       ASIterTKE=3
       ASIterTED=3
       ASIterTOmega=3
       ASIterTurbulentKL=3
-      ASIterEnergy=3
-      ASIterModifiedED=3
+      ASIterEnergy=10
+      ASIterModifiedED=10
       ASIterTGamma=3
       ASIterTReTheta=3
       ASIterTfRelaxation=3
@@ -306,15 +311,15 @@ c
 c
 c--- Assign the underrelaxation factors values
 c
-      urfMomentum=0.9 !0.4 !0.3
-      urfPressure=0.9 !0.6  !0.7
+      urfMomentum=0.5 !0.4 !0.3
+      urfPressure=0.5 !0.6  !0.7
       urfTKE=0.5 !0.3
       urfTED=0.5
       urfTOmega=0.5 !0.3
       urfTurbulentKL=0.8 
-      urfEnergy=0.3
+      urfEnergy=1.
       urfTViscosity=0.5
-      urfModifiedED=0.8
+      urfModifiedED=0.5
       urfTGamma=0.8
       urfTReTheta=0.8
       urfTfRelaxation=0.1
@@ -358,12 +363,12 @@ c
 c--- Set the name of scheme to use for variables
 c
       ConvectionSchemeMomentum='upwind'
-      ConvectionSchemeTKE='minmod'
-      ConvectionSchemeTOmega='minmod'
+      ConvectionSchemeTKE='upwind'
+      ConvectionSchemeTOmega='upwind'
       ConvectionSchemeTED='minmod'
       ConvectionSchemeTurbulentKL='minmod'
-      ConvectionSchemeModifiedED='minmod'
-      ConvectionSchemeEnergy='smart'
+      ConvectionSchemeModifiedED='upwind'
+      ConvectionSchemeEnergy='upwind'
       ConvectionSchemeDensity='upwind'
       ConvectionSchemeTGamma='minmod'
       ConvectionSchemeTReTheta='minmod'
@@ -392,14 +397,14 @@ c--- Set the multigrid variables
 c----------------------------------------------------------------------------------
       MGType='algebraic' !'geometricelement'
 c
-      LMultigridMomentum=.false.
+      LMultigridMomentum=.true.
       LMultigridTKE=.false.
       LMultigridTED=.false.
       LMultigridTOMega=.false.
       LMultigridTurbulentKL=.false.
-      LMultigridModifiedED=.false.
-      LMultigridContinuity=.false.
-      LMultigridEnergy=.false.
+      LMultigridModifiedED=.true.
+      LMultigridContinuity=.true.
+      LMultigridEnergy=.true.
       LMultigridTGamma=.false.
       LMultigridTReTheta=.false.
       LMultigridTfRelaxation=.false.
@@ -441,7 +446,7 @@ c
 c
 c--- Set the multigrid Residual reduction factor
 c
-      MultiGridrrf=0.1
+      MultiGridrrf=0.001
 c----------------------------------------------------------------------------------
 c--- Set the gradient variables
 c----------------------------------------------------------------------------------
@@ -659,28 +664,34 @@ c
            BoundaryType(i)='inlet'
            inletTypeM(i)='specifiedvelocity'
            inletTypeC(i)='specifiedvelocity'
+           inletTypeE(i)='specifiedstatictemperature'
         elseif(i.eq.2) then
            BoundaryType(i)='outlet'
-           outletTypeM(i)='specifiedstaticpressure'
-           outletTypeC(i)='specifiedstaticpressure'
+           outletTypeM(i)='specifiedaveragestaticpressure'
+           outletTypeC(i)='specifiedaveragestaticpressure'
+           outletTypeE(i)='fullydevelopedenergy'
         elseif(i.eq.3) then
-           BoundaryType(i)='outlet'
-           outletTypeM(i)='specifiedstaticpressure'
-           outletTypeC(i)='specifiedstaticpressure'
+           BoundaryType(i)='inlet'
+           inletTypeM(i)='specifiedvelocity'
+           inletTypeC(i)='specifiedvelocity'
+           inletTypeE(i)='specifiedstatictemperature'
         elseif(i.eq.4) then
            BoundaryType(i)='outlet'
-           outletTypeM(i)='specifiedstaticpressure'
-           outletTypeC(i)='specifiedstaticpressure'
+           outletTypeM(i)='specifiedaveragestaticpressure'
+           outletTypeC(i)='specifiedaveragestaticpressure'
+           outletTypeE(i)='fullydevelopedenergy'
         elseif(i.eq.5) then
            BoundaryType(i)='wall'
            wallTypeM(i)='noslip'
            wallTypeC(i)='noslip'
+           wallTypeE(i)='dirichlet'
         elseif(i.eq.6) then
            BoundaryType(i)='symmetry'
         elseif(i.eq.7) then
            BoundaryType(i)='wall'
            wallTypeM(i)='noslip'
            wallTypeC(i)='noslip'
+           wallTypeE(i)='dirichlet'
         endif
 !
 c        wallTypeM(i)='noslip'
@@ -845,6 +856,8 @@ c        outletTypeC(i)='specifiedvelocity'
 c        outletTypeC(i)='specifiedmassflowRate'
 c        outletTypeC(i)='specifiedstaticpressure'
 c        outletTypeC(i)='fullydeveloped'
+c        outletTypeC(i)='specifiedaveragestaticpressure'
+c        outletTypeC(i)='specifiedresistance'
 c
 c        outletTypeE(i)='fullydevelopedenergy'
 c        outletTypeE(i)='supersonic'
@@ -877,7 +890,7 @@ c      Reynolds=15.e6
       Minlet=0.9
 c      Taw=Tinlet*(1.+0.178*(Minlet**2))
       angle=0.*pi/180.
-      Uinfinity=5. !1.05 !Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
+      Uinfinity=10. !1.05 !Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
       Uinlet=Uinfinity !*dcos(angle)
       Vinlet=0. !Uinfinity*dsin(angle)
 c      Minlet=Uinlet/dsqrt(GammaGas*RGas*Tinlet)
@@ -998,8 +1011,8 @@ c
 c
       uVelocity=Uinlet
       BuVelocity=Uinlet
-      vVelocity=0.
-      BvVelocity=0.
+      vVelocity=Uinlet
+      BvVelocity=Uinlet
       wVelocity=0.
       BwVelocity=0.
 c      
@@ -1028,11 +1041,11 @@ c
 c
       if(LSolveTurbulenceSpecificDissipationRate) then 
 c
-        TurbulentKE=1.5*(1.*Uinlet/100.)**2
-        TurbulentOmega=RhoInlet*TurbulentKE/(9.*
+        TurbulentKE=1.5*(0.3*Uinlet/100.)**2
+        TurbulentOmega=RhoInlet*TurbulentKE/(0.09*
      *                                  ConstantViscosity)
-        BTurbulentKE=1.5*(1.*Uinlet/100.)**2
-        BTurbulentOmega=RhoInlet*BTurbulentKE/(9.*
+        BTurbulentKE=1.5*(0.3*Uinlet/100.)**2
+        BTurbulentOmega=RhoInlet*BTurbulentKE/(0.09*
      *                                  ConstantViscosity)
 c        TurbulentKE=9.e-9*(1.4*RGas*Tinlet)
 c        BTurbulentKE=9.e-9*(1.4*RGas*Tinlet)
@@ -1115,6 +1128,7 @@ c
          BuVelocity(i,j)=0.
          BvVelocity(i,j)=0.
          BwVelocity(i,j)=0.
+         BTemperature(i,j)=Tinlet+10.
 c
       enddo
       i=7     
@@ -1122,6 +1136,7 @@ c
          BuVelocity(i,j)=0.
          BvVelocity(i,j)=0.
          BwVelocity(i,j)=0.
+         BTemperature(i,j)=Tinlet+20.
 c
       enddo
 !      i=3     
