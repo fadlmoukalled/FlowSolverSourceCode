@@ -59,12 +59,12 @@ c--------------------------------------------------------------
         end SUBROUTINE InterpolateGradientToFace
 c--------------------------------------------------------------
         SUBROUTINE AssembleConvectionTermrField(Variable,Bleed,
-     *        ConvectionScheme,NVF,TVD,FiT,BFiT,dfidxT,
+     *        ConvectionScheme,HRFramework,FiT,BFiT,dfidxT,
      *              dfidyT,dfidzT,BdfidxT,BdfidyT,BdfidzT)
 c--------------------------------------------------------------
           character*10 Variable
           character*20 ConvectionScheme
-          logical NVF,TVD
+          character*4 HRFramework
           double precision :: Bleed
           double precision, dimension(:) :: FiT
           double precision, dimension(:) :: dfidxT
@@ -151,8 +151,8 @@ c
      *        rFieldGradfyT,rFieldGradfzT)
 c
       call AssembleConvectionTermrField(Variable,BleedrField(irField),
-     *     ConvectionSchemerField(irField),LNVFrField(irField),
-     *       LTVDrField(irField),rFieldT,BrFieldT,rFieldGradxT,
+     *     ConvectionSchemerField(irField),HRFrameworkrField(irField),
+     *       rFieldT,BrFieldT,rFieldGradxT,
      *          rFieldGradyT,rFieldGradzT,BrFieldGradxT,
      *                          BrFieldGradyT,BrFieldGradzT)
 c

@@ -253,7 +253,7 @@ c
       do i=1,NumberOfElements
         IrmsDivergence=IrmsDivergence+InitialVelDivergence(i)**2
       enddo
-      IrmsDivergence=DSQRT(IrmsDivergence/NumberOfElements)
+      IrmsDivergence=dsqrt(IrmsDivergence/NumberOfElements)
 c
       return
       end

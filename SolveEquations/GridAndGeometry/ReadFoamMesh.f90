@@ -2445,7 +2445,7 @@ subroutine AltitudeToHight(xc,yc,zc,nCells,PolyMeshDirectory)
      close(7)
      !----------------------------------------------------------------------!
      do i=1,nCells
-        !Find neares 3 points from the 3 sides
+        !Find nearest 3 points from the 3 sides
         call SurroundingPoints(xc(i),yc(i),xT,yT,zT,nTPoints,Xsurrounding,Ysurrounding,Zsurrounding)
         !Find the terrain Z coordinate for the corresponing xc, yc coordinates
         call FindTerrainZ(xc(i),yc(i),zcZero,Xsurrounding,Ysurrounding,Zsurrounding)

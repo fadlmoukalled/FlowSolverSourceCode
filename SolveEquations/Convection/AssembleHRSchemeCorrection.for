@@ -2,7 +2,7 @@ c
 C#############################################################################################
 c
       SUBROUTINE HRSchemesCorrections(Variable,ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT)
 c
 c#############################################################################################
 c
@@ -18,7 +18,7 @@ c*******************************************************************************
 c********************************************************************************************
       character*20 ConvectionScheme
       character*10 Variable
-      logical NVF,TVD
+      character*4 HRFramework
       double precision Bleed
       double precision, save :: phic,phid,phiu,phiTeldaC,diff,phiHR,
      *                          cpf,gf,rf,psirf,phiTeldaf,dcfx,dcfy,dcfz
@@ -63,7 +63,7 @@ c
 c
 c--- NVF implementation
 c
-        if(NVF) then
+        if(HRFramework.eq.'nvf') then
 c
           diff=phid-phiu
 c
@@ -80,9 +80,10 @@ c
           call NVFLimiter(ConvectionScheme,phiTeldaC,phiTeldaf)
 c
           phiHR=phiTeldaf*diff+phiu
-          phiHR=(1.-Bleed)*phiHR+Bleed*phic
+          if(ConvectionScheme.ne.'gamma') 
+     *                       phiHR=(1.-Bleed)*phiHR+Bleed*phic
 c
-        elseif(TVD) then
+        elseif(HRFramework.eq.'tvd') then
 c
 c--- TVD Implementation
 c

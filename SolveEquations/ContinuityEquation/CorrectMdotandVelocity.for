@@ -453,7 +453,9 @@ c
 c
           geoDiff=FluxFf(i4)
           Bmdot(i2,i3)=Bmdot(i2,i3)-
-     *               geoDiff*(BPressureC(i2,i3)-PressureC(i1))
+     *               geoDiff*(BPressureC(i2,i3)-PressureC(i1))+
+     *                        (Bmdot(i2,i3)/BDensity(i2,i3))*
+     *                           BdrhodP(i2,i3)*BPressureC(i2,i3)
 c
           sfx=BFaceAreax(i2,i3)
           sfy=BFaceAreay(i2,i3)
@@ -493,7 +495,9 @@ c
 c
           geoDiff=FluxFf(i4)
           Bmdot(i2,i3)=Bmdot(i2,i3)-
-     *               geoDiff*(BPressureC(i2,i3)-PressureC(i1))
+     *        geoDiff*(BPressureC(i2,i3)-PressureC(i1))+
+     *                        (Bmdot(i2,i3)/BDensity(i2,i3))*
+     *                           BdrhodP(i2,i3)*BPressureC(i2,i3)
           BuVelocity(i2,i3)=BuVelocity(i2,i3)-
      *                          Du2Velocity(i1)*PressCGradx(i1)
           BvVelocity(i2,i3)=BvVelocity(i2,i3)-

@@ -164,6 +164,7 @@ c
 c
 c---- Update solution
 c
+c        print*,dphi
         FiT=FiT+dphi
 c
       endif

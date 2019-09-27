@@ -121,8 +121,7 @@ c
       do i=1,NumberOfrFieldsToSolve
         write(10,*) 'FalseDtrField(',i,')=',FalseDtrField
       enddo      
-      write(10,*) 'Lsimple=',Lsimple
-      write(10,*) 'Lsimplec=',Lsimplec
+      write(10,*) 'Algorithm=',Algorithm
 c
       write(10,*) 'AngularVelocityX=',AngularVelocityX
       write(10,*) 'AngularVelocityY=',AngularVelocityY
@@ -222,33 +221,19 @@ c
 c
 c--- Set whether to use upwind, NVF or TVD convection schemes
 c
-      write(10,*) 'LNVFMomentum=',LNVFMomentum
-      write(10,*) 'LNVFTKE=',LNVFTKE
-      write(10,*) 'LNVFTED=',LNVFTED
-      write(10,*) 'LNVFTOmega=',LNVFTOmega
-      write(10,*) 'LNVFTurbulentKL=',LNVFTurbulentKL
-      write(10,*) 'LNVFEnergy=',LNVFEnergy
-      write(10,*) 'LNVFModifiedED=',LNVFModifiedED
-      write(10,*) 'LNVFDensity=',LNVFDensity
-      write(10,*) 'LNVFTGamma=',LNVFTGamma
-      write(10,*) 'LNVFTReTheta=',LNVFTReTheta
-      write(10,*) 'LNVFTfRelaxation=',LNVFTfRelaxation
-      write(10,*) 'LNVFTurbulentV2=',LNVFTurbulentV2
-      write(10,*) 'LNVFTurbulentZeta=',LNVFTurbulentZeta
-c
-      write(10,*) 'LTVDMomentum=',LTVDMomentum
-      write(10,*) 'LTVDTKE=',LTVDTKE
-      write(10,*) 'LTVDTED=',LTVDTED
-      write(10,*) 'LTVDTOmega=',LTVDTOmega
-      write(10,*) 'LTVDTurbulentKL=',LTVDTurbulentKL
-      write(10,*) 'LTVDEnergy=',LTVDEnergy
-      write(10,*) 'LTVDModifiedED=',LTVDModifiedED
-      write(10,*) 'LTVDDensity=',LTVDDensity
-      write(10,*) 'LTVDTGamma=',LTVDTGamma
-      write(10,*) 'LTVDTReTheta=',LTVDTReTheta
-      write(10,*) 'LTVDTfRelaxation=',LTVDTfRelaxation
-      write(10,*) 'LTVDTurbulentV2=',LTVDTurbulentV2
-      write(10,*) 'LTVDTurbulentZeta=',LTVDTurbulentZeta
+      write(10,*) 'HRFrameworkMomentum=',HRFrameworkMomentum
+      write(10,*) 'HRFrameworkTKE=',HRFrameworkTKE
+      write(10,*) 'HRFrameworkTED=',HRFrameworkTED
+      write(10,*) 'HRFrameworkTOmega=',HRFrameworkTOmega
+      write(10,*) 'HRFrameworkTurbulentKL=',HRFrameworkTurbulentKL
+      write(10,*) 'HRFrameworkEnergy=',HRFrameworkEnergy
+      write(10,*) 'HRFrameworkModifiedED=',HRFrameworkModifiedED
+      write(10,*) 'HRFrameworkDensity=',HRFrameworkDensity
+      write(10,*) 'HRFrameworkTGamma=',HRFrameworkTGamma
+      write(10,*) 'HRFrameworkTReTheta=',HRFrameworkTReTheta
+      write(10,*) 'HRFrameworkTfRelaxation=',HRFrameworkTfRelaxation
+      write(10,*) 'HRFrameworkTurbulentV2=',HRFrameworkTurbulentV2
+      write(10,*) 'HRFrameworkTurbulentZeta=',HRFrameworkTurbulentZeta
 c
 c--- Set when to start applying HR schemes
 c
@@ -846,8 +831,7 @@ c
           write(10,*) 'LRelaxrField(',i,')=',LRelaxrField(i)
           write(10,*) 'FalseDtrField(',i,')=',FalseDtrField(i)
           write(10,*) 'urfrField(',i,')=',urfrField(i)
-          write(10,*) 'LNVFrField(',i,')=',LNVFrField(i)
-          write(10,*) 'LTVDrField(',i,')=',LTVDrField(i)
+          write(10,*) 'HRFrameworkrField(',i,')=',HRFrameworkrField(i)
           write(10,*) 'ConvectionSchemerField(',i,')=',
      *                            ConvectionSchemerField(i)
           write(10,*) 'BleedrField(',i,')=',BleedrField(i)
@@ -912,8 +896,7 @@ c
           write(10,*) 'LRelaxScalar(',i,')=',LRelaxScalar(i)
           write(10,*) 'FalseDtScalar(',i,')=',FalseDtScalar(i)
           write(10,*) 'urfScalar(',i,')=',urfScalar(i)
-          write(10,*) 'LNVFScalar(',i,')=',LNVFScalar(i)
-          write(10,*) 'LTVDScalar(',i,')=',LTVDScalar(i)
+          write(10,*) 'HRFrameworkScalar(',i,')=',HRFrameworkScalar(i)
           write(10,*) 'ConvectionSchemeScalar(',i,')=',
      *                            ConvectionSchemeScalar(i)
           write(10,*) 'BleedScalar(',i,')=',BleedScalar(i)

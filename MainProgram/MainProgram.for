@@ -14,9 +14,9 @@ c    turbulence models are implemented. Incompressible free surface flows based 
 c    of fluid method.
 c
 C#############################################################################################
-cc
+c
       PROGRAM Unstructured
-c vvv
+c
 C#############################################################################################
 c
       use User0

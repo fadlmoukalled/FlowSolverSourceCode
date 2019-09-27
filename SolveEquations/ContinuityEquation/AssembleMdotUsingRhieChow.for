@@ -8,8 +8,8 @@ c
       use User0, only: MethodDecomposeS,Lcompressible,LUnsteady,
      *                 LRelaxMomentum,MethodCalcGradientDensity,
      *                 nIterGradientDensity,LimitGradientDensity,
-     *                 LimitGradientDensityMethod,LTVDDensity,
-     *                 ConvectionSchemeDensity,LNVFDensity,
+     *                 LimitGradientDensityMethod,HRFrameworkDensity,
+     *                 ConvectionSchemeDensity,
      *                 urfMomentum,LFalseTransientMomentum,
      *                 LBuoyancy,dt,LFreeSurfaceFlow,LSurfaceTension,
      *                 SurfaceTension,LHarmonic,nIterStartApplyingHR,
@@ -219,10 +219,10 @@ c-------------------------------------------------------------------------------
         end SUBROUTINE Gradient
 c--------------------------------------------------------------
         SUBROUTINE InterpolateToFaceUsingHRscheme(ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT,FiTf)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT,FiTf)
 c--------------------------------------------------------------
           character*20 ConvectionScheme
-          logical NVF,TVD
+          character*4 HRFramework
           double precision :: Bleed
           double precision, dimension(:) :: FiT
           double precision, dimension(:) :: dfidxT
@@ -362,7 +362,8 @@ c
           call InterpolateElementToFace
      *            (Interpolation,DensityOldOld,rhoOldOldf)
 c
-        elseif(LNVFDensity.or.LTVDDensity) then
+        elseif(HRFrameworkDensity.eq.'nvf'.or.
+     *                     HRFrameworkDensity.eq.'tvd') then
 c
           Variable='DensO'
           call Gradient(Variable,MethodCalcGradientDensity,
@@ -380,11 +381,11 @@ c
           if(nIter.ge.nIterStartApplyingHR) then
 c
             call InterpolateToFaceUsingHRscheme(ConvectionSchemeDensity,
-     *        BleedDensity,LNVFDensity,LTVDDensity,DensityOld,
+     *        BleedDensity,HRFrameworkDensity,DensityOld,
      *                            drhoxOld,drhoyOld,drhozOld,rhoOldf)
 c
             call InterpolateToFaceUsingHRscheme(ConvectionSchemeDensity,
-     *       BleedDensity,LNVFDensity,LTVDDensity,DensityOldOld,
+     *       BleedDensity,HRFrameworkDensity,DensityOldOld,
      *                   drhoxOldOld,drhoyOldOld,drhozOldOld,rhoOldOldf)
 c
           else
@@ -392,11 +393,11 @@ c
             ConvectionScheme1='upwind'
 c
             call InterpolateToFaceUsingHRscheme(ConvectionScheme1,
-     *        BleedDensity,LNVFDensity,LTVDDensity,DensityOld,
+     *        BleedDensity,HRFrameworkDensity,DensityOld,
      *                            drhoxOld,drhoyOld,drhozOld,rhoOldf)
 c
             call InterpolateToFaceUsingHRscheme(ConvectionScheme1,
-     *       BleedDensity,LNVFDensity,LTVDDensity,DensityOldOld,
+     *       BleedDensity,HRFrameworkDensity,DensityOldOld,
      *                   drhoxOldOld,drhoyOldOld,drhozOldOld,rhoOldOldf)
 c
           endif
@@ -483,7 +484,8 @@ c
           call InterpolateElementToFace
      *            (Interpolation,DensityStar,rhoStarf)
 c
-        elseif(LNVFDensity.or.LTVDDensity) then
+        elseif(HRFrameworkDensity.eq.'nvf'.or.
+     *            HRFrameworkDensity.eq.'tvd') then
 c
           Variable='DensO'
           call Gradient(Variable,MethodCalcGradientDensity,
@@ -494,7 +496,7 @@ c
           if(nIter.ge.nIterStartApplyingHR) then
 c
             call InterpolateToFaceUsingHRscheme(ConvectionSchemeDensity,
-     *        BleedDensity,LNVFDensity,LTVDDensity,DensityStar,
+     *        BleedDensity,HRFrameworkDensity,DensityStar,
      *                          drhoxStar,drhoyStar,drhozStar,rhoStarf)
 c
           else
@@ -502,7 +504,7 @@ c
             ConvectionScheme1='upwind'
 c
             call InterpolateToFaceUsingHRscheme(ConvectionScheme1,
-     *        BleedDensity,LNVFDensity,LTVDDensity,DensityStar,
+     *        BleedDensity,HRFrameworkDensity,DensityStar,
      *                         drhoxStar,drhoyStar,drhozStar,rhoStarf)
 c
           endif

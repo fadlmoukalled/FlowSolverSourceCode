@@ -7,8 +7,8 @@ c###############################################################################
 c
       use User0, only: MethodCalcGradientDensity,BleedDensity,
      *                 nIterGradientDensity,LimitGradientDensity,
-     *                 LimitGradientDensityMethod,LTVDDensity,
-     *                 ConvectionSchemeDensity,LNVFDensity,
+     *                 LimitGradientDensityMethod,HRFrameworkDensity,
+     *                 ConvectionSchemeDensity,
      *                 nIterStartApplyingHR,LConvectScalar,
      *                 LSolveMomentum,LFreeSurfaceFlow,LHarmonic
       use MultiGrid2, only: nIter
@@ -47,10 +47,10 @@ c-------------------------------------------------------------------------------
         end SUBROUTINE Gradient
 c--------------------------------------------------------------
         SUBROUTINE InterpolateToFaceUsingHRscheme(ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT,FiTf)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT,FiTf)
 c--------------------------------------------------------------
           character*20 ConvectionScheme
-          logical NVF,TVD
+          character*4 HRFramework
           double precision :: Bleed
           double precision, dimension(:) :: FiT
           double precision, dimension(:) :: dfidxT
@@ -82,7 +82,8 @@ c
         call InterpolateElementToFace
      *            (InterpolationScheme,Density,Densityf)
 c
-      elseif(LNVFDensity.or.LTVDDensity) then
+      elseif(HRFrameworkDensity.eq.'nvf'.or.
+     *                  HRFrameworkDensity.eq.'tvd') then
 c
         Variable='Dens'
 c
@@ -94,14 +95,14 @@ c
         if(nIter.ge.nIterStartApplyingHR) then
 c
           call InterpolateToFaceUsingHRscheme(ConvectionSchemeDensity,
-     *     BleedDensity,LNVFDensity,LTVDDensity,Density,DensGradx,
+     *     BleedDensity,HRFrameworkDensity,Density,DensGradx,
      *             DensGrady,DensGradz,Densityf)
 c
         else
 c
           ConvectionScheme1='upwind'
           call InterpolateToFaceUsingHRscheme(ConvectionScheme1,
-     *     BleedDensity,LNVFDensity,LTVDDensity,Density,DensGradx,
+     *     BleedDensity,HRFrameworkDensity,Density,DensGradx,
      *             DensGrady,DensGradz,Densityf)
 c
         endif

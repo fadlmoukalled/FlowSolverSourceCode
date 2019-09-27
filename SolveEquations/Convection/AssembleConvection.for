@@ -2,7 +2,7 @@ c
 c#############################################################################################
 c
       SUBROUTINE AssembleConvectionTerm(Variable,Bleed,
-     *        ConvectionScheme,NVF,TVD,FiT,BFiT,dfidxT,
+     *        ConvectionScheme,HRFramework,FiT,BFiT,dfidxT,
      *              dfidyT,dfidzT,BdfidxT,BdfidyT,BdfidzT)
 c
 c#############################################################################################
@@ -36,7 +36,7 @@ c*******************************************************************************
       double precision :: PhiB,uF1,vF1,wF1
 c
       character*20 ConvectionScheme
-      logical :: NVF,TVD
+      character*4 HRFramework
       double precision, dimension(:) :: FiT
       double precision, dimension(:) :: dfidxT
       double precision, dimension(:) :: dfidyT
@@ -49,11 +49,11 @@ c*******************************************************************************
       interface
 c********************************************************************************************
         SUBROUTINE HRSchemesCorrections(Variable,ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT)
 c--------------------------------------------------------------------------
           character*20 ConvectionScheme
           character*10 Variable
-          logical NVF,TVD
+          character*4 HRFramework
           double precision :: Bleed
           double precision :: phic,phid,phiu,phiTeldaC,diff,phiHR,
      *                        cpf,gf,rf,psirf,phiTeldaf,dcfx,dcfy
@@ -150,12 +150,12 @@ c
 c
       endif
 c
-      if(NVF.or.TVD) then
+      if(HRFramework.eq.'nvf'.or.HRFramework.eq.'tvd') then
 c
         if(nIter.ge.nIterStartApplyingHR) then
 c
           call HRSchemesCorrections(Variable,ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT)
 c
         endif
 c

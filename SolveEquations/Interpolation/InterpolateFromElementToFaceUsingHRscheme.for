@@ -1,7 +1,7 @@
 c
 C#############################################################################################
       SUBROUTINE InterpolateToFaceUsingHRscheme(ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT,FiTf)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT,FiTf)
 c#############################################################################################
       use geometry3, only: NIFaces,NIFaceOwner,NIFaceNeighbor
       use Variables1, only: mdot
@@ -11,7 +11,7 @@ c*******************************************************************************
 c*********************************************************************************************
       character*20 ConvectionScheme
       character*10 Variable
-      logical NVF,TVD
+      character*4 HRFramework
       double precision :: Bleed
       double precision, save:: phic,phid,phiu,phiTeldaC,diff,phiHR,gf,
      *                 rf,psirf,phiTeldaf,dcfx,dcfy,dcfz
@@ -53,7 +53,7 @@ c
 c
 c--- NVF implementation
 c
-        if(NVF) then
+        if(HRFramework.eq.'nvf') then
 c
           diff=phid-phiu
 c
@@ -72,7 +72,7 @@ c
           phiHR=phiTeldaf*diff+phiu
           phiHR=(1.-Bleed)*phiHR+Bleed*phic
 c
-        elseif(TVD) then
+        elseif(HRFramework.eq.'tvd') then
 c
 c--- TVD Implementation
 c
