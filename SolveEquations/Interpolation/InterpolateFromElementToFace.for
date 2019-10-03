@@ -63,7 +63,8 @@ c
           j=NIFaceNeighbor(k)
           gf=GFactorCF(k)
 c
-          FiTf(k)=(FiT(i)*FiT(j))/(gf*FiT(i)+(1.-gf)*FiT(j))
+          FiTf(k)=FiT(i)*FiT(j)
+          if(FiTf(k).ne.0.) FiTf(k)=FiTf(k)/(gf*FiT(i)+(1.-gf)*FiT(j))
 c
         enddo
 c

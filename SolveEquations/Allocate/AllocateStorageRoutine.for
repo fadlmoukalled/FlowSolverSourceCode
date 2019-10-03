@@ -592,7 +592,11 @@ c
       allocate(DensGradz(NumberOfElements))
       allocate(BDensGradx(NumberOfBCSets,NBFacesMax))      
       allocate(BDensGrady(NumberOfBCSets,NBFacesMax))      
-      allocate(BDensGradz(NumberOfBCSets,NBFacesMax))      
+      allocate(BDensGradz(NumberOfBCSets,NBFacesMax)) 
+!
+      allocate(dfidxTstar(NumberOfElements))
+      allocate(dfidyTstar(NumberOfElements))
+      allocate(dfidzTstar(NumberOfElements))
 !
       allocate(GamaFace(NIFaces))
       allocate(BGamaFace(NumberOfBCSets,NBFacesMax))      

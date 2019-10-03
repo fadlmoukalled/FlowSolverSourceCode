@@ -874,7 +874,7 @@
          j = 0
          do i=1,nCells
             j = j + Cells(i)%nPoints
-            write ( output_unit,'(i8)', advance = 'no') j    
+            write ( output_unit,'(i12)', advance = 'no') j    
          end do
      write ( output_unit,*)
      write ( output_unit,'(a)') '</DataArray>'
@@ -908,7 +908,7 @@
          offsett = offsett + (Faces(Cells(i)%FacesID(j))%nPoints+1)
        end do
         offsett = offsett + 1
-        write ( output_unit,'(i10)', advance = 'no') offsett
+        write ( output_unit,'(i14)', advance = 'no') offsett
      end do
      write ( output_unit,*)
      write ( output_unit,'(a)') '</DataArray>'

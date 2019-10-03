@@ -159,6 +159,40 @@
       integer, save :: LimitGradientTurbulentZetaMethod=2
       integer, save :: LimitGradientLambdaELEMethod=2
 !
+      logical, save :: LrelaxGradientMomentum=.true.
+      logical, save :: LrelaxGradientContinuity=.true.
+      logical, save :: LrelaxGradientEnergy=.true.
+      logical, save :: LrelaxGradientTKE=.true.
+      logical, save :: LrelaxGradientTED=.true.
+      logical, save :: LrelaxGradientTOmega=.true.
+      logical, save :: LrelaxGradientMED=.true.
+      logical, save :: LrelaxGradientTKL=.true.
+      logical, save :: LrelaxGradientTGamma=.true.
+      logical, save :: LrelaxGradientTReTheta=.true.
+      logical, save :: LrelaxGradientTv2=.true.
+      logical, save :: LrelaxGradientTZeta=.true.
+      logical, save :: LrelaxGradientTfRelaxation=.true.
+      logical, save :: LrelaxGradientLambdaELE=.true.
+      logical, save :: LrelaxGradientDensity=.true.
+      logical, save :: LrelaxGradientOthers=.true.
+!      
+      double precision, save :: urfGradientMomentum=0.75
+      double precision, save :: urfGradientContinuity=0.75
+      double precision, save :: urfGradientEnergy=0.75
+      double precision, save :: urfGradientTKE=0.75
+      double precision, save :: urfGradientTED=0.75
+      double precision, save :: urfGradientTOmega=0.75
+      double precision, save :: urfGradientMED=0.75
+      double precision, save :: urfGradientTKL=0.75
+      double precision, save :: urfGradientTGamma=0.75
+      double precision, save :: urfGradientTReTheta=0.75
+      double precision, save :: urfGradientTv2=0.75
+      double precision, save :: urfGradientTZeta=0.75
+      double precision, save :: urfGradientTfRelaxation=0.75
+      double precision, save :: urfGradientLambdaELE=0.75
+      double precision, save :: urfGradientDensity=0.75
+      double precision, save :: urfGradientOthers=0.75
+!
 !--- Limit temperature
 !
      logical, save :: LimitTemperature=.false.
@@ -645,6 +679,8 @@
       Integer, save, dimension(:), allocatable :: nIterGradientScalar
       logical, save, dimension(:), allocatable :: LimitGradientScalar
       Integer, save, dimension(:), allocatable :: LimitGradientScalarMethod
+      logical, save, dimension(:), allocatable :: LrelaxGradientScalar
+      double precision, save, dimension(:), allocatable :: urfGradientScalar
 !
 !--- Solving variables
 !
@@ -706,6 +742,8 @@
       Integer, save, dimension(:), allocatable :: nIterGradientrField
       logical, save, dimension(:), allocatable :: LimitGradientrField
       Integer, save, dimension(:), allocatable :: LimitGradientrFieldMethod
+      logical, save, dimension(:), allocatable :: LrelaxGradientrField
+      double precision, save, dimension(:), allocatable :: urfGradientrField
 !
 !--- Solving variables
 !

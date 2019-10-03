@@ -20,14 +20,14 @@ c*******************************************************************************
 c********************************************************************************************
 c
  10   format("element",1x,"--------------NEighbors-------------------")
- 20   format(i6,2x,i6,10(1x,i6))
+ 20   format(i7,1x,i7,10(1x,i7))
  30   format("element",1x,"--------Parents and Children--------------")
  40   format("element",1x,"  ac   ---------anb Coefficients----------")
- 50   format(i6,1P10E9.2)
+ 50   format(i7,1P10E9.2)
  60   format(3x,"element",2x,"Parent")
- 70   format(1x,i6,3x,i6)
+ 70   format(1x,i7,3x,i7)
  80   format(3x,"element",4x,"Residual",10x,"bc",10x,"dphi")
- 90   format(4x,i6,3x,1PE9.2,6x,1PE9.2,4x,1PE9.2)
+ 90   format(3x,i7,2x,1PE9.2,6x,1PE9.2,4x,1PE9.2)
 c
       if(indexMGPrint.eq.1) then
 c

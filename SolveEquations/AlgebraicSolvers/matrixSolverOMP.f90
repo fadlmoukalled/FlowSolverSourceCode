@@ -1,14 +1,5 @@
 subroutine ComputeSourcesNew()
-use ElementsVariables
-use PhysicalVariables
-use GMRESParameters
-use VortexMethodParameters
-use SparseMatricesVariables
-use QuickSearchVariables
-use GeneralSubroutine
-use GeneralVariables
-use CoreFunctions
-use MathsTools
+    use MathsTools
 !$ use omp_lib
 implicit none
 
@@ -30,30 +21,16 @@ integer*4, allocatable :: ThreadMaxNbOfInteraction(:)
 integer*4, allocatable :: jjj(:, :, :)
 integer, allocatable :: i1(:), i2(:)
 
-write(*,*)
-write(*,*)'You are in subroutine ComputeSourcesNew'
 
+! HERE WE ARE SOLVING AC sol = b, rthe solver yields sol and the residual r
+! the number of unknonws is nElements
 allocate(r(nElements))
 allocate(b(nElements))
 allocate(sol(nElements))
 
-Coefficient = 1.0D0/(4.0D0*pi*sigma*sigma*sigma)
-
-Rcutoff2 = RcutoffInversion*RcutoffInversion
-
-!PARALLELIZE THIS BLOCK
-r(1:nElements) = elements(1:nElements)%x(1)
-b(1:nElements) = elements(1:nElements)%x(2)
-sol(1:nElements) = elements(1:nElements)%x(3)
-
-! Should be further considered
-
-Zonesize = RcutoffInversion*sigma
-call ReorderNew()
-
 nThreads = OMP_get_max_Threads()
 CHUNK = nElements/nThreads
-LastCHUNK = nElements - (nThreads-1)*CHUNK
+LastCHUNK = nElements - (nThreads-1)*CHUNK !note that LastCHUNKshould always be >= CHUNK
 
 allocate(i1(nThreads))
 allocate(i2(nThreads))
@@ -62,76 +39,48 @@ allocate(ThreadMaxNbOfInteraction(nThreads))
 ThreadMaxNbOfInteraction(1:nThreads)= 0
 
 
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(nElements,elements,neighZoneRelInd,zones,r,b,sol,&
-!$OMP                                  &Rcutoff2,CHUNK,nThreads,i1,i2,ThreadMaxNbOfInteraction,sigmaI)
-
+!Compute the numnber of interactions per thread
+!For a grid-based solution this is the number of targets assigned to the thread (i2(ThreadID+1)-i1(ThreadID+1)+1)
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(nElements,CHUNK,nThreads,i1,i2,ThreadMaxNbOfInteraction)
 ThreadID = omp_get_thread_num()
 i1(threadID+1) = ThreadID*CHUNK+1
 i2(ThreadID+1)=i1(ThreadID+1)+CHUNK-1
 if((ThreadID+1).eq.nThreads) i2(ThreadID+1) = nElements
-
-
 do i = i1(ThreadID+1),i2(ThreadID+1) !targets
-	xT = r(i); yT = b(i); zT = sol(i)
-	izone = elements(i)%indexZone
-	k=0
-	do l=1,27
-		jzone = izone + neighZoneRelInd(l)
-		if(zones(jzone)%nEls.gt.0) then
-			j1 = zones(jzone)%startLoc
-			j2 = j1+zones(jzone)%nEls-1
-			do jj = j1,j2 !sources
-				j = elements(jj)%index
-				dx = (xT - r(j))*sigmaI; dy = (yT - b(j))*sigmaI; dz = (zT - sol(j))*sigmaI
-				d2 = (dx*dx+dy*dy+dz*dz)
-				if(d2.lt.Rcutoff2) then
-					k=k+1
-				end if
-			end do ! jj
-		end if
-	end do !l
-	if(ThreadMaxNbOfInteraction(threadID+1).lt.k) ThreadMaxNbOfInteraction(threadID+1)= k
+	!specify or compute ThreadMaxNbOfInteraction(threadID+1)
+    ThreadMaxNbOfInteraction(threadID+1)=i2(ThreadID+1)-i1(ThreadID+1)+1;
 end do !i
 !$OMP END PARALLEL
 
-
+!compute the maximum number of interactions among ther threads
 MaxNbOfInteraction = 0
 do i=1,nThreads
  if(MaxNbOfInteraction.lt.ThreadMaxNbOfInteraction(i)) MaxNbOfInteraction = ThreadMaxNbOfInteraction(i)
 end do
-
 deallocate(ThreadMaxNbOfInteraction)
 
 allocate(jjj(nThreads,LastCHUNK,MaxNbOfInteraction))
 jjj(1:nThreads,1:LastCHUNK,1:MaxNbOfInteraction)=0
-
 allocate(AC%nentries(nElements))
 
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(nElements,elements,neighZoneRelInd,zones,jjj,r,b,sol,&
-!$OMP                                  &Rcutoff2,AC,CHUNK,nThreads,i1,i2,sigmaI)
-
+! NOW we fill matrix jjj():
+! the first index is the thread index:  threadID+1
+! the second index is index of the target within the thread target list relative to the first one in the list: i-i1(threadID+1)+1
+! the third one is a counter for the thread being processed which counts the nujmber of nonzero entries in AC
+! the value of jjj() is the index of the source in the global list that interacts with target i
+!
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(nElements,jjj,AC,CHUNK,nThreads,i1,i2)
 ThreadID = omp_get_thread_num()
 
 do i=i1(threadID+1),i2(threadID+1) !targets
-	xT = r(i); yT = b(i); zT = sol(i)
-	izone = elements(i)%indexZone
-	k=0
-	do l=1,27
-		jzone = izone + neighZoneRelInd(l)
-		if(zones(jzone)%nEls.gt.0) then
-			j1=zones(jzone)%startLoc
-			j2=j1+zones(jzone)%nEls-1
-			do jj=j1,j2 !sources
-				j = elements(jj)%index
-				dx = (xT - r(j))*sigmaI; dy = (yT - b(j))*sigmaI; dz = (zT - sol(j))*sigmaI
-				d2 = (dx*dx+dy*dy+dz*dz)
-				if(d2.lt.Rcutoff2) then
-					k=k+1;
-					jjj(threadID+1,i-i1(threadID+1)+1,k) = j
-				end if
-			end do ! jj
-		end if
-	end do !l
+	! assign or compute jjj(i1,i2,i3)
+	jjj(threadID+1,i-i1(threadID+1)+1,1) = j1
+	jjj(threadID+1,i-i1(threadID+1)+1,2) = j2
+	jjj(threadID+1,i-i1(threadID+1)+1,3) = j3
+	.
+	.
+	.
+	jjj(threadID+1,i-i1(threadID+1)+1,k) = jk
 	AC%nentries(i) = k
 end do ! i
 !$OMP END PARALLEL
@@ -149,7 +98,6 @@ AC%length = AC%nentries(nElements)
 allocate(AC%j(AC%length))
 
 !$OMP PARALLEL DEFAULT(PRIVATE) SHARED(jjj,AC,i1,i2)
-
 ThreadID = omp_get_thread_num()
 do i=i1(ThreadID+1),i2(ThreadID+1) !targets
 	k1=1
@@ -162,24 +110,16 @@ end do
 deallocate(jjj)
 allocate(AC%value(AC%length))
 
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(nElements,elements,AC,r,b,sol,CHUNK,nThreads,&
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(nElements,AC,r,b,sol,CHUNK,nThreads,&
 !$OMP                                  & i1,i2,coefOffset,sigmaI)
 threadID = omp_get_thread_num()
-
 	do i=i1(threadID+1),i2(threadID+1) !targets
-		xT = r(i); yT = b(i); zT = sol(i)
 		k1=1
 		if(i.gt.1)k1=AC%nentries(i-1)+1
 		k2=AC%nentries(i)
 		do k=k1,k2 !sources
-			j=AC%j(k)
-			dx = (xT-r(j))*sigmaI
-			dy = (yT-b(j))*sigmaI
-			dz = (zT-sol(j))*sigmaI
-			d2 = (dx*dx+dy*dy+dz*dz);
-			d=DSQRT(d2)
-			call CoreFunction(d,Phi)
-			AC%value(k) = (phi-coefOffset)
+			j=AC%j(k) ! j is the index of source k in the global list
+			AC%value(k) = ASSIGN OR COMPUTE VALUE HERE!
 		end do ! k
   end do ! i
 !$OMP END PARALLEL
@@ -187,36 +127,21 @@ threadID = omp_get_thread_num()
 deallocate(i1)
 deallocate(i2)
 
-AC%value(1:AC%length) = coefficient*weight*AC%value(1:AC%length)
 AC%m = nElements
 AC%n = nElements
 AC%rowIndexed = 1
 
-do i = 1,nElements
-  elements(i)%Gamma(1:3) = 0.0D0
-end do
-
-do i=1,3
-	if(S0(i).GT.0.0D0) then
-		b(1:nElements) = elements(1:nElements)%Vorticity(i)
+		b(1:nElements) = FILL RHS HERE
 		!call GMRES_RESTARTED_OMP_RETURNR(A,b,x,r,n,mMax,nIter,res,normr)
 		call GMRES_RESTARTED_OMP_RETURNR(AC,b(1:nElements),sol(1:nElements),r(1:nElements),&
 		&nElements,GMRES_ninner,GMRES_nouter,GMRES_tol,normr)
-		S0r(i) = normr
-		elements(1:nElements)%Gamma(i) = elements(1:nElements)%Gamma(i)+sol(1:nElements)
-		write(*,*)'GMRES A',i, 1, S0(i), S0r(i), S0r(i)/S0(i)
-		if(S0r(i)/S0(i)>0.01D0)then
-			write(*,*)'inversion failed, stopping'
-		end if
-	else
-		write(*,*)'GMRES A',i, 1, S0(i)
-	end if
+
+
 end do
 
 deallocate(AC%value)
 deallocate(AC%j)
 deallocate(AC%nentries)
-if(allocated(zones)) deallocate(zones)
 
 deallocate(r)
 deallocate(b)
@@ -253,6 +178,7 @@ module MathsTools
 implicit none
 
 public :: GMRES_RESTARTED_OMP_RETURNR
+public :: BICGSTAB_OMP
 public :: AxOMP
 
 
