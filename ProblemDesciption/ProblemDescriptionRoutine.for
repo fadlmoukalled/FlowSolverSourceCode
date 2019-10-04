@@ -65,13 +65,13 @@ c
 C********************************************************************************************
       entry OpenFiles   !start with a unit number 31 and above (first 30 reserved for internal use)
 C********************************************************************************************
-c       
-      PolyMeshDirectory ="C:\Fadl\SourceDecomposed July 20 2019\
-     *Console1\Console1\Console1\Bump3DTransonic\polyMesh"
-      NeutralMeshDirectory ="C:\Fadl\SourceDecomposed July 20 2019\
-     *Console1\Console1\Console1\Bump3DTransonic\NeutralMesh"
-      SolutionDirectory="C:\Fadl\SourceDecomposed July 20 2019\
-     *Console1\Console1\Console1\Bump3DTransonic\Solution"
+c
+      directory="C:\Fadl\SourceDecomposed_July_20_2019\
+     *Console1\Console1\Console1\Testing"
+      FoamCasedirectory=trim(directory)//'\FoamCase'
+      PolyMeshDirectory =trim(directory)//'\FoamCase\constant\polymesh'
+      NeutralMeshDirectory =trim(directory)//'\NeutralMesh'
+      SolutionDirectory=trim(directory)//'\Solution'
 c
 !      open(unit=31,status='unknown',
 !     *   file=trim(SolutionDirectory)//"/MassFlowRate",
@@ -113,8 +113,8 @@ c
 c
 c--- Set the type of flow to solve
 c
-      Lcompressible=.true.
-      Linviscid=.true.
+      Lcompressible=.false.
+      Linviscid=.false.
       LUnsteady=.false.
       LCoriolis=.false.
       LFreeSurfaceFlow=.false.
@@ -124,9 +124,9 @@ c
 c
 c---- Set variables to solve
 c
-      LSolveMomentum=.true.
-      LSolveContinuity=.true.
-      LSolveEnergy=.true.
+      LSolveMomentum=.false.
+      LSolveContinuity=.false.
+      LSolveEnergy=.false.
       LSolveTurbulenceKineticEnergy=.false.
       LSolveTurbulenceDissipationRate=.false.
       LSolveTurbulenceSpecificDissipationRate=.false.
@@ -152,7 +152,7 @@ c
 c
 c--- Set the number of additional scalar variables to solve
 c
-      NumberOfScalarsToSolve=0
+      NumberOfScalarsToSolve=1
 c
 c--- Set the number of point sources in the domain
 c
@@ -160,7 +160,7 @@ c
 c
 c--- Declare whether false transient underrelaxation will be used
 c
-      LFalseTransientMomentum=.true.
+      LFalseTransientMomentum=.false.
       LFalseTransientEnergy=.false.
       LFalseTransientScalar=.false.
       LFalseTransientTKE=.false.
@@ -245,7 +245,7 @@ c
       yFixPressure=0.0499
       zFixPressure=0.
 c
-c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct)
+c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct,gmres,bicgs)
 c
       ASSolverMomentum='ilu'
       ASSolverContinuity='ilu'
@@ -317,7 +317,7 @@ c
       urfTED=0.5
       urfTOmega=0.5 !0.3
       urfTurbulentKL=0.8 
-      urfEnergy=0.3
+      urfEnergy=0.7
       urfTViscosity=0.5
       urfModifiedED=0.5
       urfTGamma=0.8
@@ -328,8 +328,8 @@ c
 c
 c--- Set whether to use upwind, NVF or TVD convection schemes
 c
-      HRFrameworkMomentum='none'      !'nvf' 'none'
-      HRFrameworkEnergy='none'         !'nvf' 'none'
+      HRFrameworkMomentum='tvd'      !'nvf' 'none'
+      HRFrameworkEnergy='tvd'         !'nvf' 'none'
       HRFrameworkDensity='tvd'        !'nvf' 'none'
       HRFrameworkTKE='tvd'            !'nvf' 'none'
       HRFrameworkTED='tvd'            !'nvf' 'none'
@@ -658,15 +658,15 @@ c           outletTypeM(i)='specifiedstaticpressure'
 c           outletTypeC(i)='specifiedstaticpressure'
 c           outletTypeE(i)='fullydevelopedenergy'
         elseif(i.eq.3) then
-           BoundaryType(i)='pressurefarfield'
-c           wallTypeM(i)='slip'
-c           wallTypeC(i)='slip'
-c           wallTypeE(i)='vonneumann'
-        elseif(i.eq.4) then
            BoundaryType(i)='wall'
            wallTypeM(i)='slip'
            wallTypeC(i)='slip'
            wallTypeE(i)='vonneumann'
+        elseif(i.eq.4) then
+           BoundaryType(i)='pressurefarfield'
+c           wallTypeM(i)='slip'
+c           wallTypeC(i)='slip'
+c           wallTypeE(i)='vonneumann'
         elseif(i.eq.5) then
            BoundaryType(i)='symmetry'
 c           wallTypeM(i)='noslip'
@@ -873,7 +873,7 @@ c
 c      Reynolds=5.e6
 c      Reynolds=15.e6
       Tinlet=300. !275.3872
-      Minlet=0.5
+      Minlet=1.65
 c      Taw=Tinlet*(1.+0.178*(Minlet**2))
       angle=0.*pi/180.
       Uinfinity=Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
@@ -997,9 +997,9 @@ c
 c
       uVelocity=Uinlet
       BuVelocity=Uinlet
-      vVelocity=0.
+      vVelocity=1.e-5
       BvVelocity=0.
-      wVelocity=0.
+      wVelocity=1.e-10
       BwVelocity=0.
 c      
 c      do i=1,NumberOfElements
@@ -1369,9 +1369,9 @@ c
         NstopType=3
         maximumResidual=1.e-9
 c
-c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct)
+c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct, gmres)
 c
-        ASSolverLambdaELE='ilu'
+        ASSolverLambdaELE='gmres'
 c
 c--- Residual reduction factor of variables while solving their algebraic equations
 c
@@ -1998,10 +1998,10 @@ c-------------------------------------------------------------------------------
 c
       if(NumberOfScalarsToSolve.gt.0) then
 
-      IterMax=200
+      IterMax=100
 
       IMonitor=NumberOfElements/2
-      NstopType=2
+      NstopType=3
       maximumResidual=1.e-10
 c
       xMonitor=0.
@@ -2023,7 +2023,7 @@ c      LsolveScalar(2)=.false.
 c
 c--- Declare which scalars to be solved using the algebraic multigrid solver
 c
-      LMultigridScalar(1)=.true.
+      LMultigridScalar(1)=.false.
 c      LMultigridScalar(2)=.true.
 c
 c--- Set the variable on which to base the grid agglomoration (could be a scalar)
@@ -2062,9 +2062,9 @@ c
       MultiGridrrf=0.1
       MGType='algebraic'
 c
-c--- Algebraic solvers of scalar variables (pbcg, ilu, sor, direct)
+c--- Algebraic solvers of scalar variables (pbcg, ilu, sor, direct,gmres,bicgs)
 c
-        ASSolverScalar(1)='ilu'
+        ASSolverScalar(1)='gmres'
 c        ASSolverScalar(2)='ilu'
 c
 c--- Residual reduction factor of scalar while solving their algebraic equations

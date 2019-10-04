@@ -163,6 +163,8 @@ double precision, save, dimension(:), allocatable :: LambdaELEGradfy
 double precision, save, dimension(:), allocatable :: LambdaELEGradfz
 double precision, save, dimension(:), allocatable :: InitialVelDivergence
 double precision, save, dimension(:), allocatable :: FinalVelDivergence
+double precision, save, dimension(:,:), allocatable :: BInitialVelDivergence
+double precision, save, dimension(:,:), allocatable :: BFinalVelDivergence
 
 !
 !--- Turbulence variables
@@ -223,6 +225,7 @@ double precision, save, dimension(:), allocatable :: TurbulenceProductionB
 double precision, save, dimension(:,:), allocatable :: BTurbulenceProductionB
 
 double precision, save, dimension(:), allocatable :: TGammaEff
+double precision, save, dimension(:,:), allocatable :: BTGammaEff
 double precision, save, dimension(:), allocatable :: TGamma
 double precision, save, dimension(:,:), allocatable :: BTGamma
 double precision, save, dimension(:), allocatable :: TGammaOld

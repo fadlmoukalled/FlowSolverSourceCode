@@ -159,7 +159,8 @@ c
      *                    BvVelocity,BvVelGradx,BvVelGrady,BvVelGradz,
      *                    wVelocity,wVelGradx,wVelGrady,wVelGradz,
      *                    BwVelocity,BwVelGradx,BwVelGrady,BwVelGradz,
-     *                    LambdaELE,initialVelDivergence
+     *                    LambdaELE,initialVelDivergence,
+     *                    BinitialVelDivergence
       use Variables4, only: ScLambdaELE,SbLambdaELE
       use Geometry1, only: NumberOfElements
       use constants1, only: tiny
@@ -231,6 +232,7 @@ c
 c--- Save Initial velocity field divergence
 c
       InitialVelDivergence=uVelGradx+vVelGrady+wVelGradz
+      BInitialVelDivergence=BuVelGradx+BvVelGrady+BwVelGradz
 c
 c--- Calculate the sum of the absolute divergence values
 c
@@ -277,7 +279,7 @@ c
      *                    LambdaELE,LambdaELEGradx,LambdaELEGrady,
      *                    LambdaELEGradz,BLambdaELEGradx,
      *                    BLambdaELEGrady,BLambdaELEGradz,
-     *                    FinalVelDivergence
+     *                    FinalVelDivergence,BFinalVelDivergence
       use BoundaryConditions1, only: wallTypeL
       use Geometry1, only: NumberOfBCSets,NumberOfElements
       use Geometry3, only: NBFaces
@@ -358,6 +360,7 @@ c
 c--- Save Final velocity field divergence
 c
       FinalVelDivergence=uVelGradx+vVelGrady+wVelGradz
+      BFinalVelDivergence=BuVelGradx+BvVelGrady+BwVelGradz
 c
 c--- Calculate the sum of the absolute divergence values
 c

@@ -35,7 +35,8 @@
                           x,y,z,NumbOfElementFaces,NumbOfElementNodes,NumberOfGroupElements,&
                           ListOfElementNodes,NTypeGeometry,MaterialGroupType,NElementsInGroup,&
                           NBCDataType,NBCDataRecords,NodeBC,NElementBC,NElementBCType,&
-                          NElementBCFace,NodeFlag,MaximumNumberofElementNodes
+                          NElementBCFace,NodeFlag,MaximumNumberofElementNodes,MaximumNumberofElementFaces 
+
      use Geometry2, only: ListOfElementNodesTemp,NumberOfGroupFlags,GroupName,NElementsInGroupTemp,&
                              BoundaryName,NGroupFlags
      use Geometry3, only: NFacesTotal,NIFaces,NBFaces,NIFaceNodes,NumberOfElementFaceNodes,&
@@ -570,9 +571,11 @@
 !
      allocate(NumberofElementNeighbors(NumberOfElements))
 !
+     MaximumNumberofElementFaces=-1
      do i=1,NumberOfElements
 !
        NumberofElementNeighbors(i)=NumbOfElementFaces(i)
+       MaximumNumberofElementFaces=max(MaximumNumberofElementFaces,NumbOfElementfaces(i))
 !
      enddo
 !
@@ -1042,16 +1045,22 @@ SUBROUTINE InitializeV
     end Type Interpolation
     
     integer :: IOstatus, k, l, InterCellsID(nInterPoints)     
-    double precision :: magnitude, angle, deltaC1, deltaC2, zc2(nCells), &
-            Xmin, Xmax, Ymin, Ymax, rSqrd, Nu, Nv, D, zArray(nCells), &
-            p = (0.4) !p is the power law constant        
+    double precision :: magnitude, angle, deltaC1, deltaC2,  &
+            Xmin, Xmax, Ymin, Ymax, rSqrd, Nu, Nv, D, &
+            p = (0.4) !p is the power law constant    
+    double precision, dimension(:), allocatable :: zc2,zArray
+    integer, dimension(:), allocatable :: CellsArray
     double precision, allocatable :: Difference2D(:)
-    integer :: CellsArray(nCells)
     LOGICAL, allocatable :: mk(:) !used as mask while searching
     integer , allocatable :: ascendingID(:)
     integer :: nObservations
     type(observedVelocities), allocatable :: observedVelocity(:)
     type(Interpolation), allocatable :: VerInter(:) !for each observation point we have verInter set
+
+    
+    allocate(zc2(nCells))
+    allocate(zArray(nCells))
+    allocate(CellsArray(nCells))
     
     zc2 = zc
     
@@ -1170,6 +1179,9 @@ SUBROUTINE InitializeV
 !        write(90,*) uVelocity(i), vVelocity(i)
         20 continue
     end do
+    deallocate(zc2)
+    deallocate(zArray)
+    deallocate(CellsArray)
 
      end SUBROUTINE InitializeV
 !************************************************************************************************
@@ -2410,7 +2422,20 @@ SUBROUTINE InitializeV
 !     
      return
      end SUBROUTINE WriteParaviewFile
-
+!************************************************************************************************
+     SUBROUTINE WriteFoamFile
+!************************************************************************************************
+     use WriteFoamModule
+!************************************************************************************************
+     implicit none
+!************************************************************************************************
+     integer :: VTK_unit
+!************************************************************************************************
+!
+     call PrintFoam
+!     
+     return
+     end SUBROUTINE WriteFoamFile
 !--------------------------------------------------------------------------------------!
 !Added subroutines
 !--------------------------------------------------------------------------------------!

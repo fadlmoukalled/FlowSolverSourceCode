@@ -5,12 +5,13 @@
 !--- Type of mesh used
 !
       character*20, save :: MeshType='polymesh' !'neutral' 'polymesh'
+      logical, save :: LprintFoamCase=.true.
       logical, save :: LprintParaviewNodeBased=.false.
-      logical, save :: LprintParaviewCellBased=.true.
-      logical, save :: LprintParaviewFile=.true.
+      logical, save :: LprintParaviewCellBased=.false.
+      logical, save :: LprintParaviewFile=.false.
       logical, save :: LprintResultsFile=.false.
       integer, save :: nInterPoints=4     !needed for Lambda Euler Lagrange
-      character*200, save :: NeutralMeshdirectory,PolyMeshdirectory,SolutionDirectory
+      character*500, save :: directory,NeutralMeshdirectory,PolyMeshdirectory,SolutionDirectory,FoamCasedirectory
       double precision, save :: GridScalex=1.d0
       double precision, save :: GridScaley=1.d0
       double precision, save :: GridScalez=1.d0
