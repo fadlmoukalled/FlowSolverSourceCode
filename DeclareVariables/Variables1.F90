@@ -163,6 +163,8 @@ double precision, save, dimension(:), allocatable :: LambdaELEGradfy
 double precision, save, dimension(:), allocatable :: LambdaELEGradfz
 double precision, save, dimension(:), allocatable :: InitialVelDivergence
 double precision, save, dimension(:), allocatable :: FinalVelDivergence
+double precision, save, dimension(:,:), allocatable :: BInitialVelDivergence
+double precision, save, dimension(:,:), allocatable :: BFinalVelDivergence
 
 !
 !--- Turbulence variables
@@ -223,6 +225,7 @@ double precision, save, dimension(:), allocatable :: TurbulenceProductionB
 double precision, save, dimension(:,:), allocatable :: BTurbulenceProductionB
 
 double precision, save, dimension(:), allocatable :: TGammaEff
+double precision, save, dimension(:,:), allocatable :: BTGammaEff
 double precision, save, dimension(:), allocatable :: TGamma
 double precision, save, dimension(:,:), allocatable :: BTGamma
 double precision, save, dimension(:), allocatable :: TGammaOld
@@ -360,16 +363,20 @@ double precision, save, dimension(:,:), allocatable :: BuvVelGradxy
 double precision, save, dimension(:), allocatable :: uwVelGradxz
 double precision, save, dimension(:,:), allocatable :: BuwVelGradxz
 
-double precision, dimension(:), allocatable :: MaterialDerivative
+double precision, save, dimension(:), allocatable :: MaterialDerivative
 
-double precision, dimension(:), allocatable :: NormalVelocity
-double precision, dimension(:,:), allocatable :: BNormalVelocity
-double precision, dimension(:), allocatable :: NormalVelocityGradx
-double precision, dimension(:), allocatable :: NormalVelocityGrady
-double precision, dimension(:), allocatable :: NormalVelocityGradz
-double precision, dimension(:,:), allocatable :: BNormalVelocityGradx
-double precision, dimension(:,:), allocatable :: BNormalVelocityGrady
-double precision, dimension(:,:), allocatable :: BNormalVelocityGradz
+double precision, save, dimension(:), allocatable :: NormalVelocity
+double precision, save, dimension(:,:), allocatable :: BNormalVelocity
+double precision, save, dimension(:), allocatable :: NormalVelocityGradx
+double precision, save, dimension(:), allocatable :: NormalVelocityGrady
+double precision, save, dimension(:), allocatable :: NormalVelocityGradz
+double precision, save, dimension(:,:), allocatable :: BNormalVelocityGradx
+double precision, save, dimension(:,:), allocatable :: BNormalVelocityGrady
+double precision, save, dimension(:,:), allocatable :: BNormalVelocityGradz
+
+double precision, save, dimension(:), allocatable :: dfidxTstar
+double precision, save, dimension(:), allocatable :: dfidyTstar
+double precision, save, dimension(:), allocatable :: dfidzTstar
 
 
 end MODULE Variables1

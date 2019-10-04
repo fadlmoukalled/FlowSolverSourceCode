@@ -153,25 +153,25 @@ c
             gf=GFactorCF(k)
 c
             gamf11=Conductivity11(i)*Conductivity11(j)
-            gamf11=gamf11/
+            if(gamf11.ne.0.) gamf11=gamf11/
      *             (gf*Conductivity11(i)+(1.-gf)*Conductivity11(j))
             gamf12=Conductivity12(i)*Conductivity12(j)
-            gamf12=gamf12/
+            if(gamf12.ne.0.) gamf12=gamf12/
      *             (gf*Conductivity12(i)+(1.-gf)*Conductivity12(j))
             gamf13=Conductivity13(i)*Conductivity13(j)
-            gamf13=gamf13/
+            if(gamf13.ne.0.) gamf13=gamf13/
      *             (gf*Conductivity13(i)+(1.-gf)*Conductivity13(j))
             gamf21=gamf12
             gamf22=Conductivity22(i)*Conductivity22(j)
-            gamf22=gamf22/
+            if(gamf22.ne.0.) gamf22=gamf22/
      *             (gf*Conductivity22(i)+(1.-gf)*Conductivity22(j))
             gamf23=Conductivity23(i)*Conductivity23(j)
-            gamf23=gamf23/
+            if(gamf23.ne.0.) gamf23=gamf23/
      *             (gf*Conductivity23(i)+(1.-gf)*Conductivity23(j))
             gamf31=gamf13
             gamf32=gamf23
             gamf33=Conductivity33(i)*Conductivity33(j)
-            gamf33=gamf33/
+            if(gamf33.ne.0.) gamf33=gamf33/
      *             (gf*Conductivity33(i)+(1.-gf)*Conductivity33(j))
 c            
             FaceAreaxp(k)=gamf11*FaceAreax(k)+
@@ -330,30 +330,36 @@ c
 c
             gamf11=DiffusionCoefficient11(i,i5)*
      *                         DiffusionCoefficient11(i,i5)
-            gamf11=gamf11/(gf*DiffusionCoefficient11(i,i5)+
+            if(gamf11.ne.0.) 
+     *            gamf11=gamf11/(gf*DiffusionCoefficient11(i,i5)+
      *                   (1.-gf)*DiffusionCoefficient11(j,i5))
             gamf12=DiffusionCoefficient12(i,i5)*
      *                         DiffusionCoefficient12(i,i5)
-            gamf12=gamf12/(gf*DiffusionCoefficient12(i,i5)+
+            if(gamf12.ne.0.) 
+     *            gamf12=gamf12/(gf*DiffusionCoefficient12(i,i5)+
      *                   (1.-gf)*DiffusionCoefficient12(j,i5))
             gamf13=DiffusionCoefficient13(i,i5)*
      *                         DiffusionCoefficient13(i,i5)
-            gamf13=gamf13/(gf*DiffusionCoefficient13(i,i5)+
+            if(gamf13.ne.0.) 
+     *            gamf13=gamf13/(gf*DiffusionCoefficient13(i,i5)+
      *                   (1.-gf)*DiffusionCoefficient13(j,i5))
             gamf21=gamf12
             gamf22=DiffusionCoefficient22(i,i5)*
      *                         DiffusionCoefficient22(i,i5)
-            gamf22=gamf22/(gf*DiffusionCoefficient22(i,i5)+
+            if(gamf22.ne.0.) 
+     *            gamf22=gamf22/(gf*DiffusionCoefficient22(i,i5)+
      *                   (1.-gf)*DiffusionCoefficient22(j,i5))
             gamf23=DiffusionCoefficient23(i,i5)*
      *                         DiffusionCoefficient23(i,i5)
-            gamf23=gamf23/(gf*DiffusionCoefficient23(i,i5)+
+            if(gamf23.ne.0.) 
+     *            gamf23=gamf23/(gf*DiffusionCoefficient23(i,i5)+
      *                   (1.-gf)*DiffusionCoefficient23(j,i5))
             gamf31=gamf13
             gamf32=gamf23
             gamf33=DiffusionCoefficient33(i,i5)*
      *                         DiffusionCoefficient33(i,i5)
-            gamf33=gamf33/(gf*DiffusionCoefficient33(i,i5)+
+            if(gamf33.ne.0.) 
+     *            gamf33=gamf33/(gf*DiffusionCoefficient33(i,i5)+
      *                   (1.-gf)*DiffusionCoefficient33(j,i5))
 c            
             FaceAreaxp(k)=gamf11*FaceAreax(k)+

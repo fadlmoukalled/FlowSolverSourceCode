@@ -171,6 +171,8 @@ c
         allocate(nIterGradientScalar(i))
         allocate(LimitGradientScalar(i))
         allocate(LimitGradientScalarMethod(i))
+        allocate(LrelaxGradientScalar(i))
+        allocate(urfGradientScalar(i))
         allocate(LSolveScalar(i))
         allocate(LMultigridScalar(i))
         allocate(rrFScalar(i))
@@ -180,8 +182,7 @@ c
         allocate(LFalseTransientScalar(i))
         allocate(urfScalar(i))
         allocate(FalseDtScalar(i))
-        allocate(LNVFScalar(i))
-        allocate(LTVDScalar(i))
+        allocate(HRFrameworkScalar(i))
         allocate(ConvectionSchemeScalar(i))
         allocate(BleedScalar(i))
         allocate(GradientInterpolationSchemeScalar(i))
@@ -213,6 +214,8 @@ c
         allocate(nIterGradientrField(i))
         allocate(LimitGradientrField(i))
         allocate(LimitGradientrFieldMethod(i))
+        allocate(LrelaxGradientrField(i))
+        allocate(urfGradientrField(i))
         allocate(LSolverField(i))
         allocate(LMultigridrField(i))
         allocate(rrFrField(i))
@@ -222,8 +225,7 @@ c
         allocate(LFalseTransientrField(i))
         allocate(urfrField(i))
         allocate(FalseDtrField(i))
-        allocate(LNVFrField(i))
-        allocate(LTVDrField(i))
+        allocate(HRFrameworkrField(i))
         allocate(ConvectionSchemerField(i))
         allocate(BleedrField(i))
         allocate(GradientInterpolationSchemerField(i))
@@ -285,8 +287,7 @@ c
         LFalseTransientScalar=.false.
         urfScalar=1.
         FalseDtScalar=1.
-        LNVFScalar=.false.
-        LTVDScalar=.false.
+        HRFrameworkScalar='none'
         ConvectionSchemeScalar='upwind'
         BleedScalar=0.
         GradientInterpolationSchemeScalar='average'
@@ -318,8 +319,7 @@ c
         LFalseTransientrField=.false.
         urfrField=1.
         FalseDtrField=1.
-        LNVFrField=.false.
-        LTVDrField=.false.
+        HRFrameworkrField='none'
         ConvectionSchemerField='upwind'
         BleedrField=0.
         GradientInterpolationSchemerField='average'

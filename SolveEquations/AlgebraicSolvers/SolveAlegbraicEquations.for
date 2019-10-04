@@ -160,10 +160,23 @@ c
           dphi=b
           call deallocateMatrixStorage
 c
+        elseif(solver.eq.'gmres'.or.solver.eq.'bicgs') then 
+c
+          iter=0  
+c          do while(FResiduals.GT.rrF*IResiduals.and.iter.lt.itmax)
+c
+            if(NF.eq.4.and.iter.ne.0) 
+     *                call UpdateSourceResistance(iter,FiT)
+            call SolveAlgebraicSystemInParallel(solver)
+c            call CheckConvergence(NF,FResiduals)
+c
+c            iter=iter+1
+c          enddo
         endif
 c
 c---- Update solution
 c
+c        print*,dphi
         FiT=FiT+dphi
 c
       endif

@@ -5,12 +5,13 @@
 !--- Type of mesh used
 !
       character*20, save :: MeshType='polymesh' !'neutral' 'polymesh'
+      logical, save :: LprintFoamCase=.true.
       logical, save :: LprintParaviewNodeBased=.false.
-      logical, save :: LprintParaviewCellBased=.true.
-      logical, save :: LprintParaviewFile=.true.
+      logical, save :: LprintParaviewCellBased=.false.
+      logical, save :: LprintParaviewFile=.false.
       logical, save :: LprintResultsFile=.false.
       integer, save :: nInterPoints=4     !needed for Lambda Euler Lagrange
-      character*200, save :: NeutralMeshdirectory,PolyMeshdirectory,SolutionDirectory
+      character*500, save :: directory,NeutralMeshdirectory,PolyMeshdirectory,SolutionDirectory,FoamCasedirectory
       double precision, save :: GridScalex=1.d0
       double precision, save :: GridScaley=1.d0
       double precision, save :: GridScalez=1.d0
@@ -28,8 +29,7 @@
 !
 !--- Solver
 !
-      logical, save :: Lsimple=.false.  ! Semi-Implicit Method for Pressure Linked Equations Algorithm
-      logical, save :: LsimpleC=.true.  ! Simple Consistent
+      character*10, save :: Algorithm='simple' !'simplec'
 !
 !--- Monitoring location
 !
@@ -79,7 +79,7 @@
 !     Interpolation Scheme: Diffusion Coefficient ('average', 'harmonic', 'upwind', 'downwind')
 !
       character*16, save :: InterpolationSchemeGamaMomentum='average'  
-      character*16, save :: InterpolationSchemeGamaEnergy='average'
+      character*16, save :: InterpolationSchemeGamaEnergy='harmonic'
       character*16, save :: InterpolationSchemeGamaTKE='average'
       character*16, save :: InterpolationSchemeGamaTED='average'
       character*16, save :: InterpolationSchemeGamaTOmega='average'
@@ -159,6 +159,40 @@
       integer, save :: LimitGradientTurbulentV2Method=2
       integer, save :: LimitGradientTurbulentZetaMethod=2
       integer, save :: LimitGradientLambdaELEMethod=2
+!
+      logical, save :: LrelaxGradientMomentum=.true.
+      logical, save :: LrelaxGradientContinuity=.true.
+      logical, save :: LrelaxGradientEnergy=.true.
+      logical, save :: LrelaxGradientTKE=.true.
+      logical, save :: LrelaxGradientTED=.true.
+      logical, save :: LrelaxGradientTOmega=.true.
+      logical, save :: LrelaxGradientMED=.true.
+      logical, save :: LrelaxGradientTKL=.true.
+      logical, save :: LrelaxGradientTGamma=.true.
+      logical, save :: LrelaxGradientTReTheta=.true.
+      logical, save :: LrelaxGradientTv2=.true.
+      logical, save :: LrelaxGradientTZeta=.true.
+      logical, save :: LrelaxGradientTfRelaxation=.true.
+      logical, save :: LrelaxGradientLambdaELE=.true.
+      logical, save :: LrelaxGradientDensity=.true.
+      logical, save :: LrelaxGradientOthers=.true.
+!      
+      double precision, save :: urfGradientMomentum=0.75
+      double precision, save :: urfGradientContinuity=0.75
+      double precision, save :: urfGradientEnergy=0.75
+      double precision, save :: urfGradientTKE=0.75
+      double precision, save :: urfGradientTED=0.75
+      double precision, save :: urfGradientTOmega=0.75
+      double precision, save :: urfGradientMED=0.75
+      double precision, save :: urfGradientTKL=0.75
+      double precision, save :: urfGradientTGamma=0.75
+      double precision, save :: urfGradientTReTheta=0.75
+      double precision, save :: urfGradientTv2=0.75
+      double precision, save :: urfGradientTZeta=0.75
+      double precision, save :: urfGradientTfRelaxation=0.75
+      double precision, save :: urfGradientLambdaELE=0.75
+      double precision, save :: urfGradientDensity=0.75
+      double precision, save :: urfGradientOthers=0.75
 !
 !--- Limit temperature
 !
@@ -329,34 +363,20 @@
 !
 !--- High resolution convection schemes
 !
-      logical, save :: LNVFMomentum=.false.
-      logical, save :: LNVFEnergy=.false.
-      logical, save :: LNVFDensity=.false.
-      logical, save :: LNVFTKE=.false.
-      logical, save :: LNVFTED=.false.
-      logical, save :: LNVFTOmega=.false.
-      logical, save :: LNVFTurbulentKL=.false.
-      logical, save :: LNVFModifiedED=.false.
-      logical, save :: LNVFTGamma=.false.
-      logical, save :: LNVFTReTheta=.false.
-      logical, save :: LNVFTfRelaxation=.false.
-      logical, save :: LNVFTurbulentV2=.false.
-      logical, save :: LNVFTurbulentZeta=.false.
+      character*4, save :: HRFrameworkMomentum='tvd'        !'nvf' 'none'
+      character*4, save :: HRFrameworkEnergy='tvd'          !'nvf' 'none'
+      character*4, save :: HRFrameworkDensity='tvd'         !'nvf' 'none'
+      character*4, save :: HRFrameworkTKE='tvd'             !'nvf' 'none'
+      character*4, save :: HRFrameworkTED='tvd'             !'nvf' 'none'
+      character*4, save :: HRFrameworkTOmega='tvd'          !'nvf' 'none'
+      character*4, save :: HRFrameworkTurbulentKL='tvd'     !'nvf' 'none'
+      character*4, save :: HRFrameworkModifiedED='tvd'      !'nvf' 'none'
+      character*4, save :: HRFrameworkTGamma='tvd'          !'nvf' 'none'
+      character*4, save :: HRFrameworkTReTheta='tvd'        !'nvf' 'none'
+      character*4, save :: HRFrameworkTfRelaxation='tvd'    !'nvf' 'none'
+      character*4, save :: HRFrameworkTurbulentV2='tvd'     !'nvf' 'none'
+      character*4, save :: HRFrameworkTurbulentZeta='tvd'   !'nvf' 'none'
 !      
-      logical, save :: LTVDMomentum=.false.
-      logical, save :: LTVDEnergy=.true.
-      logical, save :: LTVDDensity=.false.
-      logical, save :: LTVDTKE=.false.
-      logical, save :: LTVDTED=.false.
-      logical, save :: LTVDTOmega=.false.
-      logical, save :: LTVDTurbulentKL=.false.
-      logical, save :: LTVDModifiedED=.false.
-      logical, save :: LTVDTGamma=.false.
-      logical, save :: LTVDTReTheta=.false.
-      logical, save :: LTVDTfRelaxation=.false.
-      logical, save :: LTVDTurbulentV2=.false.
-      logical, save :: LTVDTurbulentZeta=.false.
-
       character*20, save :: ConvectionSchemeMomentum='minmod'
       character*20, save :: ConvectionSchemeEnergy='minmod'
       character*20, save :: ConvectionSchemeDensity='minmod'
@@ -384,6 +404,7 @@
       double precision, save :: BleedTfRelaxation=0.
       double precision, save :: BleedTurbulentV2=0.
       double precision, save :: BleedTurbulentZeta=0.
+      double precision, save :: BettaConvection=0.1          !      1/10 <= bettam <= 1/2
 !
       integer, save :: nIterStartApplyingHR=0
 !
@@ -659,6 +680,8 @@
       Integer, save, dimension(:), allocatable :: nIterGradientScalar
       logical, save, dimension(:), allocatable :: LimitGradientScalar
       Integer, save, dimension(:), allocatable :: LimitGradientScalarMethod
+      logical, save, dimension(:), allocatable :: LrelaxGradientScalar
+      double precision, save, dimension(:), allocatable :: urfGradientScalar
 !
 !--- Solving variables
 !
@@ -689,8 +712,7 @@
 !
 !--- High resolution convection schemes
 !
-      logical, save, dimension(:), allocatable :: LNVFScalar
-      logical, save, dimension(:), allocatable :: LTVDScalar
+      character*4, save, dimension(:), allocatable :: HRFrameworkScalar   !'tvd' 'nvf' 'none'
       character*20, save, dimension(:), allocatable :: ConvectionSchemeScalar
       double precision, save, dimension(:), allocatable :: BleedScalar
 !
@@ -721,6 +743,8 @@
       Integer, save, dimension(:), allocatable :: nIterGradientrField
       logical, save, dimension(:), allocatable :: LimitGradientrField
       Integer, save, dimension(:), allocatable :: LimitGradientrFieldMethod
+      logical, save, dimension(:), allocatable :: LrelaxGradientrField
+      double precision, save, dimension(:), allocatable :: urfGradientrField
 !
 !--- Solving variables
 !
@@ -754,9 +778,8 @@
 !
 !--- High resolution convection schemes
 !
-      logical, save, dimension(:), allocatable :: LNVFrField
-      logical, save, dimension(:), allocatable :: LTVDrField
-      character*20, save, dimension(:), allocatable :: ConvectionSchemerField  !stacs  !sicsam !hric
+      character*4, save, dimension(:), allocatable :: HRFrameworkrField    !'tvd'  'nvf' 'none'
+      character*20, save, dimension(:), allocatable :: ConvectionSchemerField   !stacs  !sicsam !hric
       double precision, save, dimension(:), allocatable :: BleedrField
 !
 !--- Type of gradient interpolation to face

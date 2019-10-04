@@ -1500,7 +1500,7 @@ c
 c
           endif
 c
-          FluxCfLocal1=rhof*geoDiff/BFaceArea(i2,i3)
+c          FluxCfLocal1=rhof*geoDiff/BFaceArea(i2,i3)
 c
           nx=BFaceAreanx(i2,i3)
           ny=BFaceAreany(i2,i3)
@@ -1532,7 +1532,9 @@ c
           rhob=(cb*cb/(ratio*sbEntropy))**(1./(ratio-1.))
 c
           FluxCfLocal=rhob*(1.+vdotb/cb)*BFaceArea(i2,i3)*
-     *     FluxCfLocal1/(1.+FluxCfLocal1*BPressure(i2,i3)/cb)
+     *     geoDiff/(BFaceArea(i2,i3)+geoDiff*BPressure(i2,i3)/cb)
+c          FluxCfLocal=rhob*(1.+vdotb/cb)*BFaceArea(i2,i3)*
+c     *     FluxCfLocal1/(rhob+FluxCfLocal1*BPressure(i2,i3)/cb)
 c
 c          FluxCfLocal=rhob*(1.+vdotb/cb)*BFaceArea(i2,i3)*
 c     *         (FluxCfLocal1/2.+cin/(2.*ratio*Pressure(i1)))/

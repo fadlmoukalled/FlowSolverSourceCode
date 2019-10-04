@@ -14,9 +14,9 @@ c    turbulence models are implemented. Incompressible free surface flows based 
 c    of fluid method.
 c
 C#############################################################################################
-cc
+c
       PROGRAM Unstructured
-c vvv
+c
 C#############################################################################################
 c
       use User0
@@ -45,7 +45,6 @@ c
       call OpenFiles
       print*,'Setting variables to solve for...Please wait'
       call SetVariablesToSolve
-      call CalculateNumberOfVariablesToPlot
 c
       call OpenInternalFiles
 c
@@ -63,6 +62,7 @@ c
       call SetGlobalVariables
       call setBoundaryConditions
       call SetBCPatches
+      call CalculateNumberOfVariablesToPlot
       call RotationMatrixCoefficients
       call allocateCentrifugalForce
       print*,'checking for point sources...Please wait'
@@ -366,11 +366,15 @@ c
 c
             if(mod(ndt,nTimePrint).eq.0.or.time.ge.timemax) then
 c
-              call GetUnitName(ndt,'.vtu',Filprint,12) 
+              if(LprintParaviewFile) then
+                call GetUnitName(ndt,'.vtu',Filprint,12) 
+                call WriteParaviewFile
+                close(12)
+              endif
 c
-              call WriteParaviewFile
-c
-              close(12)
+              if(LprintFoamCase) then
+                call WriteFoamFile
+              endif
 c
             endif
 c
@@ -398,6 +402,9 @@ c
               call WriteParaviewFile
               close(12)
             endif
+            if(LprintFoamCase) then
+              call WriteFoamFile
+            endif
           endif
 c
           call GetUnitName(ndt,'.old',Filold,4) 
@@ -421,7 +428,8 @@ c
       use User0, only: MeshType,name,FilNeu,Filprint,Filin,Filres,
      *                 Filout,Filwdist,Filold,Filgnuplot,FilMG,
      *                 LTestMultiGrid,NeutralMeshDirectory,
-     *                 SolutionDirectory,LReadOldSolution,LUnsteady
+     *                 SolutionDirectory,LReadOldSolution,LUnsteady,
+     *                 LprintFoamCase,FoamCasedirectory
 c********************************************************************************************
       implicit none
 c********************************************************************************************
@@ -431,6 +439,11 @@ c
         Filprint=trim(name)//'.dat'
       elseif(MeshType.eq.'polymesh') then
         Filprint=trim(name)//'.vtu'
+        if(LprintFoamCase) then
+          Filin='A.foam'
+          open (unit=1,file=trim(FoamCasedirectory)//'/'//trim(Filin))
+          close(1)
+        endif
       endif
 c
       Filin=trim(name)//'.cin'

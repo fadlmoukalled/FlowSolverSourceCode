@@ -9,7 +9,7 @@ c
       use Geometry3, only: NumberofElementNeighbors 
       use Geometry4, only: Volume
       use Variables2, only: ac,anb
-      use User0, only: Lsimple,LsimpleC      
+      use User0, only: Algorithm
 c********************************************************************************************
       implicit none
 c********************************************************************************************
@@ -17,7 +17,7 @@ c*******************************************************************************
       double precision, dimension(:) :: dphi1,dphi2,dphi3,dphi4
 c********************************************************************************************
 c
-	if(Lsimple) then
+	if(algorithm.eq.'simple') then
 c
 	  do i=1,NumberOfElements
 c
@@ -27,7 +27,7 @@ c
 c
 	  enddo
 c
-	elseif(LsimpleC) THEN
+	elseif(algorithm.eq.'simplec') THEN
 c
 	  do i=1,NumberOfElements
 c

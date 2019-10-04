@@ -218,6 +218,8 @@ implicit none
 !
   double precision, save, dimension(:), allocatable :: ProductionKT
   double precision, save, dimension(:), allocatable :: ProductionKL
+  double precision, save, dimension(:,:), allocatable :: BProductionKT
+  double precision, save, dimension(:,:), allocatable :: BProductionKL
   double precision, save, dimension(:), allocatable :: SourceRbp
   double precision, save, dimension(:), allocatable :: SourceRnat
 !

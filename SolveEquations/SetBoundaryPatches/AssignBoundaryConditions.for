@@ -21,7 +21,7 @@ c
             if(BoundaryType(i).eq.'closed') then
                BoundaryType(i)='wall' 
                wallTypeL(i)='vonneumann'
-            else
+            elseif(BoundaryType(i).eq.'permeable') then
                BoundaryType(i)='wall' 
                wallTypeL(i)='dirichlet'
             endif

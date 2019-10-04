@@ -367,6 +367,8 @@ c
 c
         allocate(InitialVelDivergence(NumberOfElements))      
         allocate(FinalVelDivergence(NumberOfElements))      
+        allocate(BInitialVelDivergence(NumberOfBCSets,NBFacesMax))
+        allocate(BFinalVelDivergence(NumberOfBCSets,NBFacesMax))
 c
       endif
 c
@@ -592,7 +594,11 @@ c
       allocate(DensGradz(NumberOfElements))
       allocate(BDensGradx(NumberOfBCSets,NBFacesMax))      
       allocate(BDensGrady(NumberOfBCSets,NBFacesMax))      
-      allocate(BDensGradz(NumberOfBCSets,NBFacesMax))      
+      allocate(BDensGradz(NumberOfBCSets,NBFacesMax)) 
+!
+      allocate(dfidxTstar(NumberOfElements))
+      allocate(dfidyTstar(NumberOfElements))
+      allocate(dfidzTstar(NumberOfElements))
 !
       allocate(GamaFace(NIFaces))
       allocate(BGamaFace(NumberOfBCSets,NBFacesMax))      
@@ -1043,6 +1049,8 @@ c
           allocate(BAlfaT(NumberOfBCSets,NBFacesMax))
           allocate(ProductionKT(NumberOfElements))
           allocate(ProductionKL(NumberOfElements))
+          allocate(BProductionKT(NumberOfBCSets,NBFacesMax))
+          allocate(BProductionKL(NumberOfBCSets,NBFacesMax))
           allocate(SourceRbp(NumberOfElements))
           allocate(SourceRnat(NumberOfElements))
           allocate(sqrtTurbulentKE(NumberOfElements))
@@ -1275,6 +1283,7 @@ c
         if(TurbulenceModel.eq.'sstgamaretheta') then
 c
           allocate(TGammaEff(NumberOfElements))
+          allocate(BTGammaEff(NumberOfBCSets,NBFacesMax))
 c
           allocate(F1factor(NumberOfElements))
           allocate(BF1factor(NumberOfBCSets,NBFacesMax))
@@ -1897,6 +1906,8 @@ c
 c
         InitialVelDivergence=0.
         FinalVelDivergence=0.
+        BInitialVelDivergence=0.
+        BFinalVelDivergence=0.
 c
       endif
 c
@@ -2413,6 +2424,9 @@ c
           AlfaT=0.
           BAlfaT=0.
           ProductionKT=0.
+          BProductionKT=0.
+          ProductionKL=0.
+          BProductionKL=0.
           SourceRbp=0.
           SourceRnat=0.
           sqrtTurbulentKE=0.
@@ -2644,6 +2658,7 @@ c
           F1factor=0.
           BF1factor=0.
           TGammaEff=1.
+          BTGammaEff=1.
           fr1Coefficient=1.
           F2factor=0.
           BF2factor=0.

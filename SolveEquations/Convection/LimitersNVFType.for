@@ -4,7 +4,7 @@ c
       SUBROUTINE NVFLimiter(ConvectionScheme,phiTeldaC,phiTeldaf)
 c
 c#############################################################################################
-      use User0, only: dt
+      use User0, only: dt,BettaConvection
       use VolumeOfFluid2, only: i,j,k
       use VolumeOfFluid1, only: cosThetaF
       use Geometry4, only: Volume,GFactorCF
@@ -29,6 +29,7 @@ c     osher     (bounded)
 c     stoic     (bounded)
 c     muscl     (bounded)
 c     superbee  (bounded)
+c     gamma     (bounded)
 c     stacs     (bounded)
 c     hric      (bounded)
 c     cicsam    (bounded)
@@ -100,6 +101,18 @@ c
       elseif(ConvectionScheme.eq.'downwind') then
 c
         phiTeldaf=1.
+c
+        return
+c
+      elseif(ConvectionScheme.eq.'gamma') then
+c
+        phiTeldaf=phiTeldaC
+        if(phiTeldaC.gt.0..and.phiTeldaC.lt.BettaConvection) then
+          factor=0.5/BettaConvection
+          phiTeldaf=(-factor*phiTeldaC+(1.+factor))*phiTeldaC
+        elseif(phiTeldaC.ge.BettaConvection.and.phiTeldaC.lt.1.) then
+          phiTeldaf=0.5+0.5*phiTeldaC
+        endif
 c
         return
 c

@@ -7,7 +7,7 @@ c###############################################################################
 c
       use User0, only: BuoyancyModel,nIterStartApplyingHR,
      *                 ConvectionSchemeEnergy,BleedEnergy,
-     *                 LNVFEnergy,LTVDEnergy
+     *                 HRFrameworkEnergy
       use PhysicalProperties1, only:CoefficientOfThermalExpansion,
      *                              ReferenceDensity,GravityX,GravityY,
      *                              GravityZ,ReferenceTemperature,
@@ -38,10 +38,10 @@ c*******************************************************************************
       interface
 c********************************************************************************************
         SUBROUTINE InterpolateToFaceUsingHRscheme(ConvectionScheme,
-     *               Bleed,NVF,TVD,FiT,dfidxT,dfidyT,dfidzT,FiTf)
+     *               Bleed,HRFramework,FiT,dfidxT,dfidyT,dfidzT,FiTf)
 c--------------------------------------------------------------
           character*20 ConvectionScheme
-          logical NVF,TVD
+          character*4 HRFramework
           double precision :: Bleed
           double precision, dimension(:) :: FiT
           double precision, dimension(:) :: dfidxT
@@ -61,14 +61,14 @@ c
         if(nIter.ge.nIterStartApplyingHR) then
 c
           call InterpolateToFaceUsingHRscheme(ConvectionSchemeEnergy,
-     *     BleedEnergy,LNVFEnergy,LTVDEnergy,Temperature,TempGradx,
+     *     BleedEnergy,HRFrameworkEnergy,Temperature,TempGradx,
      *             TempGrady,TempGradz,Temperaturef)
 c
         else
 c
           ConvectionScheme1='upwind'
           call InterpolateToFaceUsingHRscheme(ConvectionScheme1,
-     *     BleedEnergy,LNVFEnergy,LTVDEnergy,Temperature,TempGradx,
+     *     BleedEnergy,HRFrameworkEnergy,Temperature,TempGradx,
      *             TempGrady,TempGradz,Temperaturef)
 c
         endif

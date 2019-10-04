@@ -72,12 +72,12 @@ c--------------------------------------------------------------
         end SUBROUTINE AssembleDiffusionTerm
 c--------------------------------------------------------------
         SUBROUTINE AssembleConvectionTerm(Variable,Bleed,
-     *        ConvectionScheme,NVF,TVD,FiT,BFiT,dfidxT,
+     *        ConvectionScheme,HRFramework,FiT,BFiT,dfidxT,
      *              dfidyT,dfidzT,BdfidxT,BdfidyT,BdfidzT)
 c--------------------------------------------------------------
           character*10 Variable
           character*20 ConvectionScheme
-          logical NVF,TVD
+          character*4 HRFramework
           double precision :: Bleed
           double precision, dimension(:) :: FiT
           double precision, dimension(:) :: dfidxT
@@ -186,7 +186,7 @@ c
      *                TOmegaGradfx,TOmegaGradfy,TOmegaGradfz)
 c
       call AssembleConvectionTerm(Variable,BleedTOmega,
-     *     ConvectionSchemeTOmega,LNVFTOmega,LTVDTOmega,TurbulentOmega,
+     *     ConvectionSchemeTOmega,HRFrameworkTOmega,TurbulentOmega,
      *       BTurbulentOmega,TOmegaGradx,TOmegaGrady,TOmegaGradz,
      *                      BTOmegaGradx,BTOmegaGrady,BTOmegaGradz)
 c
