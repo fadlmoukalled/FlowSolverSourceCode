@@ -9,6 +9,7 @@
       logical, save :: LprintParaviewNodeBased=.false.
       logical, save :: LprintParaviewCellBased=.false.
       logical, save :: LprintParaviewFile=.false.
+      logical, save :: LWritePolymesh=.true.
       logical, save :: LprintResultsFile=.false.
       integer, save :: nInterPoints=4     !needed for Lambda Euler Lagrange
       character*500, save :: directory,NeutralMeshdirectory,PolyMeshdirectory,SolutionDirectory,FoamCasedirectory
@@ -160,22 +161,22 @@
       integer, save :: LimitGradientTurbulentZetaMethod=2
       integer, save :: LimitGradientLambdaELEMethod=2
 !
-      logical, save :: LrelaxGradientMomentum=.true.
-      logical, save :: LrelaxGradientContinuity=.true.
-      logical, save :: LrelaxGradientEnergy=.true.
-      logical, save :: LrelaxGradientTKE=.true.
-      logical, save :: LrelaxGradientTED=.true.
-      logical, save :: LrelaxGradientTOmega=.true.
-      logical, save :: LrelaxGradientMED=.true.
-      logical, save :: LrelaxGradientTKL=.true.
-      logical, save :: LrelaxGradientTGamma=.true.
-      logical, save :: LrelaxGradientTReTheta=.true.
-      logical, save :: LrelaxGradientTv2=.true.
-      logical, save :: LrelaxGradientTZeta=.true.
-      logical, save :: LrelaxGradientTfRelaxation=.true.
-      logical, save :: LrelaxGradientLambdaELE=.true.
-      logical, save :: LrelaxGradientDensity=.true.
-      logical, save :: LrelaxGradientOthers=.true.
+      logical, save :: LrelaxGradientMomentum=.false.
+      logical, save :: LrelaxGradientContinuity=.false.
+      logical, save :: LrelaxGradientEnergy=.false.
+      logical, save :: LrelaxGradientTKE=.false.
+      logical, save :: LrelaxGradientTED=.false.
+      logical, save :: LrelaxGradientTOmega=.false.
+      logical, save :: LrelaxGradientMED=.false.
+      logical, save :: LrelaxGradientTKL=.false.
+      logical, save :: LrelaxGradientTGamma=.false.
+      logical, save :: LrelaxGradientTReTheta=.false.
+      logical, save :: LrelaxGradientTv2=.false.
+      logical, save :: LrelaxGradientTZeta=.false.
+      logical, save :: LrelaxGradientTfRelaxation=.false.
+      logical, save :: LrelaxGradientLambdaELE=.false.
+      logical, save :: LrelaxGradientDensity=.false.
+      logical, save :: LrelaxGradientOthers=.false.
 !      
       double precision, save :: urfGradientMomentum=0.75
       double precision, save :: urfGradientContinuity=0.75

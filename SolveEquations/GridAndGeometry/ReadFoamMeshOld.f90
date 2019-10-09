@@ -35,7 +35,8 @@
                           x,y,z,NumbOfElementFaces,NumbOfElementNodes,NumberOfGroupElements,&
                           ListOfElementNodes,NTypeGeometry,MaterialGroupType,NElementsInGroup,&
                           NBCDataType,NBCDataRecords,NodeBC,NElementBC,NElementBCType,&
-                          NElementBCFace,NodeFlag,MaximumNumberofElementNodes
+                          NElementBCFace,NodeFlag,MaximumNumberofElementNodes,MaximumNumberofElementFaces 
+
      use Geometry2, only: ListOfElementNodesTemp,NumberOfGroupFlags,GroupName,NElementsInGroupTemp,&
                              BoundaryName,NGroupFlags
      use Geometry3, only: NFacesTotal,NIFaces,NBFaces,NIFaceNodes,NumberOfElementFaceNodes,&
@@ -52,116 +53,80 @@
      integer :: i,i1,j,k,k1,k2,k3
      logical :: add
      integer :: IOstatus
-     integer :: iOwner,iNeighbor,ntemp,n,iEdge,indexEdge,iElement,e1,e2
+     integer :: iOwner,iNeighbor,ntemp,n,iEdge,indexEdge,iElement
      character (len = 70) :: x9(10)
-     character (len = 250) :: L0, L1, L2,L3
-
-!Read Points    
-open(unit = 1, file = trim(PolyMeshDirectory)//"/points")
-
-
- i=0
- L2 = ''
- do 
-   L1 = L2
-   read (1,"(a)",iostat=IOstatus) L2
-   if (IOstatus/=0) exit 
-   if((index(L2,"("))>0) then
-     read(L1,*) nPoints
-     exit
-   end if
- end do
-
-allocate(points(nPoints,3))
-print*, nPoints
-
-i=1
-L2 = ''
-L1 = ''
-loop1 :do
-  read (1,'(a)',iostat=IOstatus) L1
-  if (IOstatus/=0) exit loop1
-  e1 = index(L1,'(')
-  e2 = index(L1,')')
-  
-  if((e1.ge.1).and.(e2.ge.1)) then
-     L2 = L1(e1+1:e2-1)
-     read(L2,*) Points(i,:)
-     i = i+1
-     L2 = ''
-     L1 = ''
-  elseif((e1.ge.1).and.(e2.eq.0)) then
-    L2 = trim(adjustl(L1))//' '//L2
-    loop2: do 
-        read(1,'(a)',iostat=IOstatus) L1
-        if (IOstatus/=0) exit loop2
-        e2 = index(L1,')')
-        L2 = trim(adjustl(L2))//' '//L1
-        if(e2.ge.1) exit loop2 
-    enddo loop2
-    
-    e1 = index(L2,'(')
-    e2 = index(L2,')')
-    L2 = L2(e1+1:e2-1)
-    read(L2,*) Points(i,:)
-    i = i+1
-    L2 = ''
-    L1 = ''
-  endif
-  
-enddo loop1
-close(1)
+     character (len = 70) :: L0, L1 
+!       
+!----Reading points
+!
+     open(unit = 7, file = trim(PolyMeshDirectory)//"/points")
+!
+     i=0
+     do 
+       L0 = L1
+       read (7,"(a)",iostat=IOstatus) L1
+       if (IOstatus/=0) exit 
+        if((index(L1,"("))>0) then
+          read(L0,*) nPoints
+          exit
+        end if
+     end do
+!
+     allocate(points(nPoints,3))
+!
+     do i=1,nPoints
+!
+       read (7,*) x9(1), x9(2), x9(3)
+       read( x9(1)(2:20), * ) points(i,1)
+       read( x9(2)(1:20), * ) points(i,2)
+       read( x9(3)(1:(len(trim(x9(3)))-1)), * ) points(i,3)
+       points(i,1)=points(i,1)*GridScalex
+       points(i,2)=points(i,2)*GridScaley
+       points(i,3)=points(i,3)*GridScalez
+     end do
+!
+     close(7)
 !        
 !----Reading Faces
-open(unit = 1, file = trim(PolyMeshDirectory)//"/faces")
-
-i=0
-L2 = ''
-do 
-   L1 = L2
-   read (1,"(a)",iostat=IOstatus) L2
-   if (IOstatus/=0) exit 
-   if((index(L2,"("))>0) then
-     read(L1,*) nFaces
-     exit
-   end if
-end do
-
-allocate(Faces(nFaces))
-
-i=1
-L2 = ''
-L1 = ''
-loopFaces :do
-  read (1,'(a)',iostat=IOstatus) L1
-  if (IOstatus/=0) exit loopFaces
-  L2 = trim(adjustl(L2))//' '//L1
-  
-  e1 = index(L2,'(')
-  if(e1.ge.1) then
-     L3 = L2(1:e1-1)
-     
-     read(L3,*) faces(i)%nPoints
-     allocate(faces(i)%PointsID(faces(i)%nPoints))
-     L2 = L2(e1+1:)
-   endif
-   
-   e2 = index(L2,')')
-   if(e2.ge.1) then
-      L2 = L2(1:e2-1)
-      read(L2,*) faces(i)%PointsID(1:faces(i)%nPoints)
-      i = i+1
-      L1 = ''
-      L2 = ''
-      if(i.gt.nFaces) exit loopFaces
-   endif
-   
-enddo loopFaces
-
-do i=1,nFaces
- Faces(i)%PointsID = Faces(i)%PointsID + 1
-enddo
-
+!
+     open(unit = 7, file = trim(PolyMeshDirectory)//"/faces")
+!        
+     i=0
+     L1 = ""
+     do 
+       L0 = L1
+       read (7,"(a)",iostat=IOstatus) L1
+       if (IOstatus/=0) exit 
+       if((index(L1,"("))>0) then
+         read(L0,*) nFaces
+         exit
+       end if
+     end do
+!        
+     allocate(Faces(nFaces))
+!        
+     do i=1,nFaces
+       read( 7, "(A)" ) L1
+       read( L1(1:1), * ) faces(i)%nPoints
+!
+       allocate(faces(i)%PointsID(faces(i)%nPoints))
+!           
+       read(L1,*) x9(1:faces(i)%nPoints)
+!
+!----Reading Face Points
+!
+       read( x9(1)(3:20), * ) faces(i)%PointsID(1)
+!
+       do j=2,(faces(i)%nPoints-1)
+         read( x9(j)(1:20), * ) faces(i)%PointsID(j)
+       end do
+!
+       read( x9(faces(i)%nPoints)(1:(len(trim(x9(faces(i)%nPoints)))-1)), * ) faces(i)%PointsID(faces(i)%nPoints)
+       faces(i)%PointsID(:) = faces(i)%PointsID(:)+1
+!
+     end do
+!
+     close(7)
 !        
 !----Reading owners
 !
@@ -234,22 +199,18 @@ enddo
        if((index(L1,"nFaces"))>0) then
          read( L1(1:(len(trim(L1))-1)), "(A)" ) x9(1)
          read(x9(1),*) x9(2), Boundaries(i)%nFaces
-!         print*,'nFaces',i, Boundaries(i)%nFaces
        end if
 !           
        if((index(L1,"startFace"))>0) then
          read( L1(1:(len(trim(L1))-1)), "(A)" ) x9(1)
          read(x9(1),*) x9(2), Boundaries(i)%startFace
          Boundaries(i)%StartFace = Boundaries(i)%StartFace+1
-!         print*, 'startface ',i, Boundaries(i)%StartFace
          i=i+1
        end if
 !            
      end do
 !
-     close(7)  
-     
-     
+     close(7)
 ! 
 !----Establish Global Connectivity        
 !        
@@ -610,9 +571,11 @@ enddo
 !
      allocate(NumberofElementNeighbors(NumberOfElements))
 !
+     MaximumNumberofElementFaces=-1
      do i=1,NumberOfElements
 !
        NumberofElementNeighbors(i)=NumbOfElementFaces(i)
+       MaximumNumberofElementFaces=max(MaximumNumberofElementFaces,NumbOfElementfaces(i))
 !
      enddo
 !
@@ -914,7 +877,7 @@ enddo
          j = 0
          do i=1,nCells
             j = j + Cells(i)%nPoints
-            write ( output_unit,'(i8)', advance = 'no') j    
+            write ( output_unit,'(i12)', advance = 'no') j    
          end do
      write ( output_unit,*)
      write ( output_unit,'(a)') '</DataArray>'
@@ -948,7 +911,7 @@ enddo
          offsett = offsett + (Faces(Cells(i)%FacesID(j))%nPoints+1)
        end do
         offsett = offsett + 1
-        write ( output_unit,'(i10)', advance = 'no') offsett
+        write ( output_unit,'(i14)', advance = 'no') offsett
      end do
      write ( output_unit,*)
      write ( output_unit,'(a)') '</DataArray>'
@@ -1055,11 +1018,6 @@ enddo
 !    
      end SUBROUTINE printVector     
 !************************************************************************************************
-!-----------------------------------------------------------------------------------------------!
-
-
-
-
 SUBROUTINE InitializeV
 !
 !************************************************************************************************
@@ -1087,18 +1045,18 @@ SUBROUTINE InitializeV
     end Type Interpolation
     
     integer :: IOstatus, k, l, InterCellsID(nInterPoints)     
-    double precision :: magnitude, angle, deltaC1, deltaC2, &
-            Xmin, Xmax, Ymin, Ymax, rSqrd, Nu, Nv, D,&
+    double precision :: magnitude, angle, deltaC1, deltaC2,  &
+            Xmin, Xmax, Ymin, Ymax, rSqrd, Nu, Nv, D, &
             p = (0.4) !p is the power law constant    
-    double precision, allocatable :: zc2(:), zArray(:)   
+    double precision, dimension(:), allocatable :: zc2,zArray
+    integer, dimension(:), allocatable :: CellsArray
     double precision, allocatable :: Difference2D(:)
-    integer, allocatable :: CellsArray(:)
     LOGICAL, allocatable :: mk(:) !used as mask while searching
     integer , allocatable :: ascendingID(:)
     integer :: nObservations
     type(observedVelocities), allocatable :: observedVelocity(:)
     type(Interpolation), allocatable :: VerInter(:) !for each observation point we have verInter set
-    
+
     
     allocate(zc2(nCells))
     allocate(zArray(nCells))
@@ -1221,6 +1179,9 @@ SUBROUTINE InitializeV
 !        write(90,*) uVelocity(i), vVelocity(i)
         20 continue
     end do
+    deallocate(zc2)
+    deallocate(zArray)
+    deallocate(CellsArray)
 
      end SUBROUTINE InitializeV
 !************************************************************************************************
@@ -2509,7 +2470,7 @@ subroutine AltitudeToHight(xc,yc,zc,nCells,PolyMeshDirectory)
      close(7)
      !----------------------------------------------------------------------!
      do i=1,nCells
-        !Find neares 3 points from the 3 sides
+        !Find nearest 3 points from the 3 sides
         call SurroundingPoints(xc(i),yc(i),xT,yT,zT,nTPoints,Xsurrounding,Ysurrounding,Zsurrounding)
         !Find the terrain Z coordinate for the corresponing xc, yc coordinates
         call FindTerrainZ(xc(i),yc(i),zcZero,Xsurrounding,Ysurrounding,Zsurrounding)

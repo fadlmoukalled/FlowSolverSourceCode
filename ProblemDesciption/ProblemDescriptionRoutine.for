@@ -67,7 +67,7 @@ C*******************************************************************************
 C********************************************************************************************
 c
       directory="C:\Fadl\SourceDecomposed_July_20_2019\
-     *Console1\Console1\Console1\Testing"
+     *Console1\Console1\Console1\RAEplane"
       FoamCasedirectory=trim(directory)//'\FoamCase'
       PolyMeshDirectory =trim(directory)//'\FoamCase\constant\polymesh'
       NeutralMeshDirectory =trim(directory)//'\NeutralMesh'
@@ -93,7 +93,7 @@ C*******************************************************************************
 C********************************************************************************************
       LReadOldSolution=.false.
       LStructured=.false.
-      LReadSavedGrid=.true.
+      LReadSavedGrid=.false.
       LReadSavedWallDistance=.false.
       GridScalex=1.d0
       GridScaley=1.d0
@@ -106,15 +106,17 @@ C*******************************************************************************
       MomentumWallFunctionType='automatic' !'scalable' !'standard'  !'automatic'
 c
       MeshType='polymesh'
-      LprintParaviewNodeBased=.true.
-      LprintParaviewCellBased=.true.
-      LprintParaviewFile=.true.
+      LprintFoamCase=.true.
+      LprintParaviewNodeBased=.false.
+      LprintParaviewCellBased=.false.
+      LprintParaviewFile=.false.
+      LWritePolymesh=.true.
       LprintResultsFile=.false.
 c
 c--- Set the type of flow to solve
 c
-      Lcompressible=.false.
-      Linviscid=.false.
+      Lcompressible=.true.
+      Linviscid=.true.
       LUnsteady=.false.
       LCoriolis=.false.
       LFreeSurfaceFlow=.false.
@@ -124,9 +126,9 @@ c
 c
 c---- Set variables to solve
 c
-      LSolveMomentum=.false.
-      LSolveContinuity=.false.
-      LSolveEnergy=.false.
+      LSolveMomentum=.true.
+      LSolveContinuity=.true.
+      LSolveEnergy=.true.
       LSolveTurbulenceKineticEnergy=.false.
       LSolveTurbulenceDissipationRate=.false.
       LSolveTurbulenceSpecificDissipationRate=.false.
@@ -152,7 +154,7 @@ c
 c
 c--- Set the number of additional scalar variables to solve
 c
-      NumberOfScalarsToSolve=1
+      NumberOfScalarsToSolve=0
 c
 c--- Set the number of point sources in the domain
 c
@@ -178,8 +180,8 @@ c
 c
 c--- Assign the false time step values
 c
-      FalseDtMomentum=1.e-3 !e-2
-      FalseDtEnergy=1.e-2
+      FalseDtMomentum=1.e-2 !e-2
+      FalseDtEnergy=1.e-1
       FalseDtTKE=1.e-1 !e-2
       FalseDtTOmega=1.e-1 !e-2
       FalseDtModifiedED=1.e-3
@@ -214,7 +216,7 @@ c
 c
 c--- Maximum number of global iterations
 c
-        IterMax=3000
+        IterMax=150
 c
 c--- Assign the monitoring location
 
@@ -247,13 +249,13 @@ c
 c
 c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct,gmres,bicgs)
 c
-      ASSolverMomentum='ilu'
-      ASSolverContinuity='ilu'
+      ASSolverMomentum='sor'
+      ASSolverContinuity='sor'
       ASSolverTKE='ilu'
       ASSolverTED='ilu'
       ASSolverTOmega='ilu'
       ASSolverTurbulentKL='ilu'
-      ASSolverEnergy='ilu'
+      ASSolverEnergy='sor'
       ASSolverModifiedED='ilu'
       ASSolverTGamma='ilu'
       ASSolverTReTheta='ilu'
@@ -279,8 +281,8 @@ c
 c
 c--- maximum number of algebraic solver iterations
 c
-      ASIterMomentum=3 !3
-      ASIterContinuity=30 !30
+      ASIterMomentum=30 !3
+      ASIterContinuity=100 !30
       ASIterTKE=10
       ASIterTED=3
       ASIterTOmega=10
@@ -344,7 +346,7 @@ c
 c
 c--- Set when to start applying HR schemes
 c
-      nIterStartApplyingHR=1
+      nIterStartApplyingHR=10000
 c
 c--- Set the name of scheme to use for variables
 c
@@ -355,7 +357,7 @@ c
       ConvectionSchemeTurbulentKL='minmod'
       ConvectionSchemeModifiedED='upwind'
       ConvectionSchemeEnergy='minmod'
-      ConvectionSchemeDensity='minmod'
+      ConvectionSchemeDensity='upwind'
       ConvectionSchemeTGamma='minmod'
       ConvectionSchemeTReTheta='minmod'
       ConvectionSchemeTfRelaxation='minmod'
@@ -385,9 +387,9 @@ c-------------------------------------------------------------------------------
       MGType='geometricelement' !'geometricelement'
 c
       LMultigridMomentum=.false.
-      LMultigridTKE=.true.
+      LMultigridTKE=.false.
       LMultigridTED=.false.
-      LMultigridTOMega=.true.
+      LMultigridTOMega=.false.
       LMultigridTurbulentKL=.false.
       LMultigridModifiedED=.false.
       LMultigridContinuity=.false.
@@ -495,14 +497,14 @@ c
 c
 c--- Set the method to use to limit the gradient 
 c
-      LimitGradientMomentumMethod=1
+      LimitGradientMomentumMethod=2
       LimitGradientTKEMethod=2
       LimitGradientTEDMethod=2
       LimitGradientTOmegaMethod=2
       LimitGradientTurbulentKLMethod=2
       LimitGradientModifiedEDMethod=2
-      LimitGradientContinuityMethod=1
-      LimitGradientEnergyMethod=1
+      LimitGradientContinuityMethod=2
+      LimitGradientEnergyMethod=2
       LimitGradientDensityMethod=2
       LimitGradientTGammaMethod=2
       LimitGradientTReThetaMethod=2
@@ -586,11 +588,11 @@ c
        LPrintMassFlowRate(3)=.true.
        LPrintMassFlowRate(4)=.true.
        LPrintMassFlowRate(5)=.true.
-c       LPrintMassFlowRate(6)=.true.
-c       LPrintMassFlowRate(7)=.true.
-c       LPrintMassFlowRate(8)=.true.
-c       LPrintMassFlowRate(9)=.true.
-c       LPrintMassFlowRate(10)=.true.
+       LPrintMassFlowRate(6)=.true.
+       LPrintMassFlowRate(7)=.true.
+       LPrintMassFlowRate(8)=.true.
+       LPrintMassFlowRate(9)=.true.
+       LPrintMassFlowRate(10)=.true.
 c       LPrintMassFlowRate(11)=.true.
 c       LPrintMassFlowRate(12)=.true.
 c       LPrintMassFlowRate(13)=.true.
@@ -647,37 +649,58 @@ c
 !      ComplianceC(6)=5.967e-10
       do i=1,NumberOfBCSets
 c
-        if(i.eq.1) then
-           BoundaryType(i)='pressurefarfield'
-c           inletTypeM(i)='specifiedvelocity'
-c           inletTypeC(i)='specifiedvelocity'
-c           inletTypeE(i)='supersonic'
-        elseif(i.eq.2) then
-           BoundaryType(i)='pressurefarfield'
-c           outletTypeM(i)='specifiedstaticpressure'
-c           outletTypeC(i)='specifiedstaticpressure'
-c           outletTypeE(i)='fullydevelopedenergy'
-        elseif(i.eq.3) then
+        !if(i.eq.1) then
+        !   BoundaryType(i)='pressurefarfield'
+        !elseif(i.eq.2) then
+        !   BoundaryType(i)='pressurefarfield'
+        !elseif(i.eq.3) then
+        !   BoundaryType(i)='wall'
+        !   wallTypeM(i)='slip'
+        !   wallTypeC(i)='slip'
+        !   wallTypeE(i)='vonneumann'
+        !elseif(i.eq.4) then
+        !   BoundaryType(i)='pressurefarfield'
+        !elseif(i.eq.5) then
+        !   BoundaryType(i)='symmetry'
+        !endif
+          
+          
+          
+          
+          
+          
+        if(BoundaryName(i).eq.'wingL') then
            BoundaryType(i)='wall'
            wallTypeM(i)='slip'
            wallTypeC(i)='slip'
            wallTypeE(i)='vonneumann'
-        elseif(i.eq.4) then
+        elseif(BoundaryName(i).eq.'wingR') then
+           BoundaryType(i)='wall'
+           wallTypeM(i)='slip'
+           wallTypeC(i)='slip'
+           wallTypeE(i)='vonneumann'
+        elseif(BoundaryName(i).eq.'tail') then
+           BoundaryType(i)='wall'
+           wallTypeM(i)='slip'
+           wallTypeC(i)='slip'
+           wallTypeE(i)='vonneumann'
+        elseif(BoundaryName(i).eq.'fuselage') then
+           BoundaryType(i)='wall'
+           wallTypeM(i)='slip'
+           wallTypeC(i)='slip'
+           wallTypeE(i)='vonneumann'
+        elseif(BoundaryName(i).eq.'lateralL') then
            BoundaryType(i)='pressurefarfield'
-c           wallTypeM(i)='slip'
-c           wallTypeC(i)='slip'
-c           wallTypeE(i)='vonneumann'
-        elseif(i.eq.5) then
-           BoundaryType(i)='symmetry'
-c           wallTypeM(i)='noslip'
-c           wallTypeC(i)='noslip'
-c        elseif(i.eq.6) then
-c           BoundaryType(i)='symmetry'
-c        elseif(i.eq.7) then
-c           BoundaryType(i)='wall'
-c           wallTypeM(i)='noslip'
-c           wallTypeC(i)='noslip'
-c           wallTypeE(i)='dirichlet'
+        elseif(BoundaryName(i).eq.'lateralR') then
+           BoundaryType(i)='pressurefarfield'
+        elseif(BoundaryName(i).eq.'top') then
+           BoundaryType(i)='pressurefarfield'
+        elseif(BoundaryName(i).eq.'outlet') then
+           BoundaryType(i)='pressurefarfield'
+        elseif(BoundaryName(i).eq.'bottom') then
+           BoundaryType(i)='pressurefarfield'
+        elseif(BoundaryName(i).eq.'inlet') then
+           BoundaryType(i)='pressurefarfield'
         endif
 !
 c        wallTypeM(i)='noslip'
@@ -872,14 +895,16 @@ c
       PrLaminar=0.72
 c      Reynolds=5.e6
 c      Reynolds=15.e6
-      Tinlet=300. !275.3872
-      Minlet=1.65
+      Tinlet=275.3872
+c      Minlet=1.65
 c      Taw=Tinlet*(1.+0.178*(Minlet**2))
-      angle=0.*pi/180.
-      Uinfinity=Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
-      Uinlet=Uinfinity !*dcos(angle)
-      Vinlet=Uinfinity !Uinfinity*dsin(angle)
-c      Minlet=Uinlet/dsqrt(GammaGas*RGas*Tinlet)
+      Uinlet=299.35814  !*dcos(angle)
+      Vinlet=5.2253  !Uinfinity*dsin(angle)
+      Uinfinity=dsqrt(Uinlet**2+Vinlet**2) !Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
+c      Uinfinity=Minlet*dsqrt(GammaGas*RGas*Tinlet) !5.e-3 !0.174814656 !0.1123641468 !0.104998   !1.e-4 !*  !0.14142588
+c      Uinlet=Uinfinity
+      angle=dacos(Uinlet/Uinfinity)   !*pi/180.
+      Minlet=Uinfinity/dsqrt(GammaGas*RGas*Tinlet)
 c      Uinfinity=dsqrt(Uinlet**2+Vinlet**2)
 c      Minlet=Uinfinity/dsqrt(GammaGas*RGas*Tinlet)
       SoutherlandLambda=1.512041288e-6 !for air 1.512041288e-6
@@ -893,7 +918,7 @@ c
      *                                (Tinlet+SoutherlandC) !0.0035 !1.7894e-5 !0.001003 !1.7894e-5 !1.8e-5
       ConstantConductivity=ConstantViscosity*
      *                 ConstantSpecificHeat/PrLaminar   !0.0242
-      Pinlet=1.e5
+      Pinlet=29765.
       RhoInlet=Pinlet/(RGas*Tinlet) !Reynolds*ConstantViscosity/(1.*Uinlet)
       Rhoinfinity=RhoInlet
 c      Pinlet=46040 !RhoInlet*Rgas*Tinlet                !1000. !0.*110.*133.3224
@@ -958,7 +983,7 @@ c
 c
           if(LSolveTurbulenceDissipationRate) then 
 c
-            TKEFarField(i)=1.5*(1.*Uinlet/100.)**2
+            TKEFarField(i)=313.204 !1.5*(1.*Uinlet/100.)**2
             TEDFarField(i)=0.09*RhoInlet*TKEFarField(i)**2/(20.*
      *                                  ConstantViscosity)
 c
@@ -966,9 +991,9 @@ c
 c
           if(LSolveTurbulenceSpecificDissipationRate) then 
 c
-            TKEFarField(i)=1.5*(0.9*Uinlet/100.)**2
-            TOmegaFarField(i)=RhoInlet*TKEFarField(i)/(8.*
-     *                                  ConstantViscosity)
+            TKEFarField(i)=313.204 !1.5*(0.9*Uinlet/100.)**2
+            TOmegaFarField(i)=3.13e+07 !RhoInlet*TKEFarField(i)/(8.*
+c     *                                  ConstantViscosity)
 c            TKEFarField(i)=9.e-9*(1.4*RGas*Tinlet)
 c            TOmegaFarField(i)=1.e-6*RhoInlet*
 c     *               (1.4*RGas*Tinlet)/constantViscosity      !125.*Uinlet/2. 
@@ -997,9 +1022,9 @@ c
 c
       uVelocity=Uinlet
       BuVelocity=Uinlet
-      vVelocity=1.e-5
-      BvVelocity=0.
-      wVelocity=1.e-10
+      vVelocity=Vinlet
+      BvVelocity=Vinlet
+      wVelocity=1.e-5
       BwVelocity=0.
 c      
 c      do i=1,NumberOfElements
@@ -1027,10 +1052,10 @@ c
 c
       if(LSolveTurbulenceSpecificDissipationRate) then 
 c
-        TurbulentKE=1.5*(0.3*1.414*Uinlet/100.)**2
+        TurbulentKE=1.5*(0.3*Uinlet/100.)**2
         TurbulentOmega=RhoInlet*TurbulentKE/(0.09*
      *                                  ConstantViscosity)
-        BTurbulentKE=1.5*(0.3*1.414*Uinlet/100.)**2
+        BTurbulentKE=1.5*(0.3*Uinlet/100.)**2
         BTurbulentOmega=RhoInlet*BTurbulentKE/(0.09*
      *                                  ConstantViscosity)
 c        TurbulentKE=9.e-9*(1.4*RGas*Tinlet)
@@ -1109,27 +1134,28 @@ c
       AxisOfRotationOriginY=0.
       AxisOfRotationOriginZ=0.
 c
-c      i=5    
-c      do j=1,NBFaces(i)      
-c         BuVelocity(i,j)=0.
-c         BvVelocity(i,j)=0.
-c         BwVelocity(i,j)=0.
-c         BTemperature(i,j)=Tinlet+10.
-c
-c      enddo
-c      i=7     
-c      do j=1,NBFaces(i)      
-c         BuVelocity(i,j)=0.
-c         BvVelocity(i,j)=0.
-c         BwVelocity(i,j)=0.
-c         BTemperature(i,j)=Tinlet+20.
-c
-c      enddo
-!      i=3     
+!      i=3   
 !      do j=1,NBFaces(i)      
 !         BuVelocity(i,j)=0.
 !         BvVelocity(i,j)=0.
 !         BwVelocity(i,j)=0.
+!         BTemperature(i,j)=Tinlet
+!c
+!      enddo
+!      i=4    
+!      do j=1,NBFaces(i)      
+!         BuVelocity(i,j)=0.
+!         BvVelocity(i,j)=0.
+!         BwVelocity(i,j)=0.
+!         BTemperature(i,j)=Tinlet
+!c
+!      enddo
+!      i=6    
+!      do j=1,NBFaces(i)      
+!         BuVelocity(i,j)=0.
+!         BvVelocity(i,j)=0.
+!         BwVelocity(i,j)=0.
+!         BTemperature(i,j)=Tinlet
 !c
 !      enddo
 !      i=4     
@@ -1369,9 +1395,9 @@ c
         NstopType=3
         maximumResidual=1.e-9
 c
-c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct, gmres)
+c--- Algebraic solvers of basic variables (pbcg, ilu, sor, direct, gmres,bicgs)
 c
-        ASSolverLambdaELE='gmres'
+        ASSolverLambdaELE='ilu'
 c
 c--- Residual reduction factor of variables while solving their algebraic equations
 c

@@ -1,8 +1,8 @@
 module GMRESParameters
     implicit none
     save
-    integer,parameter :: GMRES_ninner = 10
-    integer,parameter :: GMRES_nouter = 100
+    integer,parameter :: GMRES_ninner = 20
+    integer,parameter :: GMRES_nouter = 1000
     double precision ::  GMRES_tol = 1.0D-9    ! Maximum Residual
     integer,parameter :: GMRES_save = 0
     integer,parameter :: GMRES_constrained = 1

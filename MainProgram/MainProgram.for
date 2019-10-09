@@ -360,6 +360,10 @@ c
 c
               close(12)
 c
+              if(LprintFoamCase) then
+                call WriteFoamFile
+              endif
+c
             endif
 c
 		elseif(MeshType.eq.'polymesh') then
@@ -397,6 +401,9 @@ c
           if(MeshType.eq.'neutral') then
             call tecplot
             close(12)
+            if(LprintFoamCase) then
+              call WriteFoamFile
+            endif
           elseif(MeshType.eq.'polymesh') then
             if(LprintParaviewFile) then
               call WriteParaviewFile
@@ -439,11 +446,11 @@ c
         Filprint=trim(name)//'.dat'
       elseif(MeshType.eq.'polymesh') then
         Filprint=trim(name)//'.vtu'
-        if(LprintFoamCase) then
-          Filin='A.foam'
-          open (unit=1,file=trim(FoamCasedirectory)//'/'//trim(Filin))
-          close(1)
-        endif
+      endif
+      if(LprintFoamCase) then
+        Filin='A.foam'
+        open (unit=1,file=trim(FoamCasedirectory)//'/'//trim(Filin))
+        close(1)
       endif
 c
       Filin=trim(name)//'.cin'

@@ -4,9 +4,6 @@ contains
 !************************************************************************************************
      SUBROUTINE PrintFoam
 !************************************************************************************************
-    use user0, only:  time
-    use user0, only:  FoamCasedirectory
-    
      use User0, only: LSolveMomentum,LSolveContinuity,LSolveTurbulenceKineticEnergy,&
                      LSolveModifiedED,LSolveTurbulenceDissipationRate,LSolveTurbulenceV2Equation,&
                      LSolveTurbulenceZetaEquation,LSolveTurbulencefRelaxationEquation,&
@@ -15,7 +12,7 @@ contains
                      TurbulenceModel,LTurbulentFlow,LBuoyancy,LtestTurbulenceModel,EnergyEquation,&
                      NumberOfrFieldsToSolve,LSolverField,NumberOfScalarsToSolve,LSolveScalar,&
                      LCompressible,LFreeSurfaceFlow,rFieldName,ScalarName,LUnsteady,LPrintGradients,&
-                     LSolveLambdaELEEquation
+                     LSolveLambdaELEEquation,time,MeshType,LWritePolyMesh,FoamCasedirectory
      use Geometry1, only: NumberOfElements, NumberOfBCSets
      use Geometry3, only: NBFaces,NBFacesmax,NBFaceOwner
      !----------------------------------------------------------------------------------------------------!
@@ -87,6 +84,7 @@ contains
      write(timeChar , '(f10.5)') time
      
      call system('mkdir -p '//trim(FoamCasedirectory)//'\'//adjustl(trim(timeChar)))
+     if(MeshType.eq.'neutral'.and.LWritePolyMesh) call WritePolyMesh
 !
      if(LUnsteady) LtestTurbulenceModel=.false.   !in order not to modify normal distance to wall
 !    
@@ -563,3 +561,269 @@ close(30)
 end subroutine printFoamVector
 
 end module WriteFoamModule
+subroutine writeBoundaryFile(nBoundaries,nFaces,StartFace,BoundaryName,directory)
+
+!nBoundaries : number of boundary patches
+!nFaces : number of faces in each boundary
+!startFace : starting face of each boundary
+!BoundaryName : name of each of the boundary patches
+!directory : polyMesh directory
+
+implicit none
+
+integer :: i
+character (len = *), intent(in) :: directory
+integer, intent(in) :: nBoundaries
+integer ::  nFaces(nBoundaries)
+integer ::  StartFace(nBoundaries)
+character (len = *), intent(in) :: BoundaryName(nBoundaries)
+
+
+
+open(unit = 1, file = trim(directory)//"\boundary")
+
+write(1,'(a)') "/*--------------------------------*- C++ -*----------------------------------*\"
+write(1,'(a)') "| =========                 |                                                 |"
+write(1,'(a)') "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |"
+write(1,'(a)') "|  \\    /   O peration     | Version:  2.0.1                                 |"
+write(1,'(a)') "|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |"
+write(1,'(a)') "|    \\/     M anipulation  |                                                 |"
+write(1,'(a)') "\*---------------------------------------------------------------------------*/"
+write(1,'(a)') "FoamFile"
+write(1,'(a)') "{"
+write(1,'(a)') "    version     2.0;"
+write(1,'(a)') "    format      ascii;"
+write(1,'(a)') "    class       polyBoundaryMesh;"
+write(1,'(a)') '    location    "constant/polyMesh";'
+write(1,'(a)') "    object       boundary;"
+write(1,'(a)') "}"
+write(1,'(a)') "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
+
+write(1,*) nBoundaries
+write(1,'(a)') "("
+do i=1,nBoundaries
+    write(1,*) trim(adjustl(BoundaryName(i)))
+    write(1,'(a)') "{"
+    write(1,'(a)') "    type            patch;"
+    write(1,*) 'nFaces', nFaces(i),';'
+    write(1,*) 'startFace', startFace(i)-1 ,';'
+    write(1,'(a)') "}"
+enddo
+write(1,'(a)') ")"
+
+end subroutine writeBoundaryFile
+
+
+subroutine writeFacesFile(nFaces,nPoints,PointsID,directory)
+
+!nFaces : number of faces
+!nPoints(:) : number of points in each face
+!PointsID(:,:) : ID of points in each face, 1st index for face number, second index for point order in the face
+
+implicit none
+
+integer :: i
+character (len = *), intent(in) :: directory
+integer, intent(in) :: nFaces
+integer :: nPoints(nFaces)
+integer :: PointsID(nFaces,50)
+
+open(unit = 1, file = trim(directory)//"\faces")
+
+write(1,'(a)') "/*--------------------------------*- C++ -*----------------------------------*\"
+write(1,'(a)') "| =========                 |                                                 |"
+write(1,'(a)') "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |"
+write(1,'(a)') "|  \\    /   O peration     | Version:  2.0.1                                 |"
+write(1,'(a)') "|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |"
+write(1,'(a)') "|    \\/     M anipulation  |                                                 |"
+write(1,'(a)') "\*---------------------------------------------------------------------------*/"
+write(1,'(a)') "FoamFile"
+write(1,'(a)') "{"
+write(1,'(a)') "    version     2.0;"
+write(1,'(a)') "    format      ascii;"
+write(1,'(a)') "    class       faceList;"
+write(1,'(a)') '    location    "constant/polyMesh";'
+write(1,'(a)') "    object       faces;"
+write(1,'(a)') "}"
+write(1,'(a)') "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
+write(1,*) nFaces
+write(1,'(a)') "("
+
+do i=1,nFaces
+    write(1,*) nPoints(i),'(',PointsID(i,1:nPoints(i))-1,')'
+enddo
+write(1,'(a)') ")"
+end subroutine writeFacesFile
+
+subroutine writeNeighbourFile(nNeighbour,neighbourID,directory)
+!nPoints : number of points in the domain
+!nCells : number of cells in the domain
+!nFaces : number of faces in the domain
+!nInternalFaces : number of internal faces in the domain
+!nNeighbour : number of neighbors
+!neighbourID : Id of each neighbor
+implicit none
+
+integer :: i
+character (len = *), intent(in) :: directory
+integer, intent(in) :: nNeighbour
+integer :: neighbourID(nNeighbour)
+
+
+
+open(unit = 1, file = trim(directory)//"\neighbour")
+
+write(1,'(a)') "/*--------------------------------*- C++ -*----------------------------------*\"
+write(1,'(a)') "| =========                 |                                                 |"
+write(1,'(a)') "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |"
+write(1,'(a)') "|  \\    /   O peration     | Version:  2.0.1                                 |"
+write(1,'(a)') "|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |"
+write(1,'(a)') "|    \\/     M anipulation  |                                                 |"
+write(1,'(a)') "\*---------------------------------------------------------------------------*/"
+write(1,'(a)') "FoamFile"
+write(1,'(a)') "{"
+write(1,'(a)') "    version     2.0;"
+write(1,'(a)') "    format      ascii;"
+write(1,'(a)') "    class       labelList;"
+write(1,'(a)') '    location    "constant/polyMesh";'
+write(1,'(a)') "    object       neighbour;"
+write(1,'(a)') "}"
+write(1,'(a)') "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
+write(1,*) nNeighbour
+write(1,'(a)') "("
+
+do i=1,nNeighbour
+    write(1,*) neighbourID(i)-1 !Shift them to zero
+enddo
+write(1,'(a)') ")"
+
+
+end subroutine writeNeighbourFile
+
+subroutine writeOwnerFile(nOwner,OwnerID,directory)
+!nNeighbour : number of neighbors
+!neighbourID : Id of each neighbor
+
+implicit none
+integer :: i
+character (len = *), intent(in) :: directory
+integer, intent(in) ::nOwner
+integer :: OwnerID(nOwner)
+
+
+
+open(unit = 1, file = trim(directory)//"\owner")
+
+write(1,'(a)') "/*--------------------------------*- C++ -*----------------------------------*\"
+write(1,'(a)') "| =========                 |                                                 |"
+write(1,'(a)') "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |"
+write(1,'(a)') "|  \\    /   O peration     | Version:  2.0.1                                 |"
+write(1,'(a)') "|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |"
+write(1,'(a)') "|    \\/     M anipulation  |                                                 |"
+write(1,'(a)') "\*---------------------------------------------------------------------------*/"
+write(1,'(a)') "FoamFile"
+write(1,'(a)') "{"
+write(1,'(a)') "    version     2.0;"
+write(1,'(a)') "    format      ascii;"
+write(1,'(a)') "    class       labelList;"
+write(1,'(a)') '    location    "constant/polyMesh";'
+write(1,'(a)') "    object       Owner;"
+write(1,'(a)') "}"
+write(1,'(a)') "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
+write(1,*) nOwner
+write(1,'(a)') "("
+
+do i=1,nOwner
+    write(1,*) OwnerID(i)-1 !Shift them to zero
+enddo
+write(1,'(a)') ")"
+
+
+end subroutine writeOwnerFile
+
+
+subroutine writePointsFile(nPoints,x,y,z,directory)
+
+!nPoints number of points in the domain (vertices)
+!x(:) x-coordinate of each point 
+!y(:) y-coordinate of each point
+!z(:) z-coordinate of each point
+
+implicit none
+integer :: i
+character (len = *), intent(in) :: directory
+integer, intent(in) :: nPoints
+double precision :: x(nPoints), y(nPoints), z(nPoints)
+
+open(unit = 1, file = trim(directory)//"\points")
+
+write(1,'(a)') "/*--------------------------------*- C++ -*----------------------------------*\"
+write(1,'(a)') "| =========                 |                                                 |"
+write(1,'(a)') "| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |"
+write(1,'(a)') "|  \\    /   O peration     | Version:  2.0.1                                 |"
+write(1,'(a)') "|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |"
+write(1,'(a)') "|    \\/     M anipulation  |                                                 |"
+write(1,'(a)') "\*---------------------------------------------------------------------------*/"
+write(1,'(a)') "FoamFile"
+write(1,'(a)') "{"
+write(1,'(a)') "    version     2.0;"
+write(1,'(a)') "    format      ascii;"
+write(1,'(a)') "    class       vectorField;"
+write(1,'(a)') '    location    "constant/polyMesh";'
+write(1,'(a)') "    object       points;"
+write(1,'(a)') "}"
+write(1,'(a)') "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
+write(1,*) nPoints
+write(1,'(a)') "("
+
+do i=1,nPoints
+    write(1,*) '(',x(i),y(i),z(i),')'
+enddo
+write(1,'(a)') ")"
+end subroutine writePointsFile
+
+
+subroutine WritePolyMesh
+use user0, only:  PolyMeshDirectory
+use Geometry1, only: NumberOfBCSets, NumberofNodes, NumberofElements,x,y,z
+use Geometry3, only: NBFaces, NIFaces, NFacesTotal, GlobalFaceNumberofNodes, &
+        NIFaceNodes,NBFaceNodes,MaximumNumberofFaceNodes, NIFaceNeighbor, NIFaceOwner,NBFaceOwner
+use Geometry2, only: BoundaryName
+
+integer, allocatable :: FacesPointsID(:,:), OwnerID(:)
+integer :: BStartFace(NumberOfBCSets)
+integer :: i
+
+allocate(FacesPointsID(nFacesTotal,MaximumNumberofFaceNodes))
+allocate(OwnerID(NFacesTotal))
+
+BStartFace(1) = NIFaces+1
+do i=2,NumberOfBCSets
+   BStartFace(i) = BStartFace(i-1)+NBFaces(i-1)
+enddo
+
+do i=1,NIFaces
+   OwnerID(i)=NIFaceOwner(i)
+   do j=1,GlobalFaceNumberOfNodes(i)
+     FacesPointsID(i,j)=NIFaceNodes(i,j)
+   enddo
+ enddo
+!
+ k=NIFaces
+ do i=1,NumberOfBCSets
+   do j=1,NBFaces(i)
+     k=k+1
+     OwnerID(k)=NBFaceOwner(i,j)
+     do k1=1,GlobalFaceNumberOfNodes(k)
+       FacesPointsID(k,k1)=NBFaceNodes(i,j,k1)
+     enddo
+   enddo
+ enddo
+ 
+call writeBoundaryFile(NumberOfBCSets,NBFaces,BStartFace,BoundaryName,PolyMeshDirectory)
+call writeFacesFile(NFacesTotal,GlobalFaceNumberofNodes,FacesPointsID,PolyMeshDirectory)
+call writeNeighbourFile(NIFaces,NIFaceNeighbor,PolyMeshDirectory)
+call writeOwnerFile(nFacesTotal,OwnerID,PolyMeshDirectory)
+call writePointsFile(NumberofNodes,x,y,z,PolyMeshDirectory)
+
+end subroutine WritePolyMesh
