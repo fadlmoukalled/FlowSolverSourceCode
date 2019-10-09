@@ -35,7 +35,7 @@
                           x,y,z,NumbOfElementFaces,NumbOfElementNodes,NumberOfGroupElements,&
                           ListOfElementNodes,NTypeGeometry,MaterialGroupType,NElementsInGroup,&
                           NBCDataType,NBCDataRecords,NodeBC,NElementBC,NElementBCType,&
-                          NElementBCFace,NodeFlag,MaximumNumberofElementNodes
+                          NElementBCFace,NodeFlag,MaximumNumberofElementNodes,MaximumNumberofElementFaces 
      use Geometry2, only: ListOfElementNodesTemp,NumberOfGroupFlags,GroupName,NElementsInGroupTemp,&
                              BoundaryName,NGroupFlags
      use Geometry3, only: NFacesTotal,NIFaces,NBFaces,NIFaceNodes,NumberOfElementFaceNodes,&
@@ -610,9 +610,11 @@ enddo
 !
      allocate(NumberofElementNeighbors(NumberOfElements))
 !
+     MaximumNumberofElementFaces=-1
      do i=1,NumberOfElements
 !
        NumberofElementNeighbors(i)=NumbOfElementFaces(i)
+       MaximumNumberofElementFaces=max(MaximumNumberofElementFaces,NumbOfElementfaces(i))
 !
      enddo
 !
@@ -914,7 +916,7 @@ enddo
          j = 0
          do i=1,nCells
             j = j + Cells(i)%nPoints
-            write ( output_unit,'(i8)', advance = 'no') j    
+            write ( output_unit,'(i12)', advance = 'no') j    
          end do
      write ( output_unit,*)
      write ( output_unit,'(a)') '</DataArray>'
@@ -948,7 +950,7 @@ enddo
          offsett = offsett + (Faces(Cells(i)%FacesID(j))%nPoints+1)
        end do
         offsett = offsett + 1
-        write ( output_unit,'(i10)', advance = 'no') offsett
+        write ( output_unit,'(i14)', advance = 'no') offsett
      end do
      write ( output_unit,*)
      write ( output_unit,'(a)') '</DataArray>'
@@ -1221,6 +1223,9 @@ SUBROUTINE InitializeV
 !        write(90,*) uVelocity(i), vVelocity(i)
         20 continue
     end do
+    deallocate(zc2)
+    deallocate(zArray)
+    deallocate(CellsArray)
 
      end SUBROUTINE InitializeV
 !************************************************************************************************
